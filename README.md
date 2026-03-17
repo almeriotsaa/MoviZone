@@ -1,4 +1,4 @@
-# movie_app
+# MoviZone
 
 A new Flutter project.
 
