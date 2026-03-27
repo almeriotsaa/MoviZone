@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:movie_app/models/movie.dart';
 import 'package:movie_app/services/movie_service.dart';
 
+import 'DetailPage.dart';
+
 class ExplorePage extends StatefulWidget {
   const ExplorePage({super.key});
 
@@ -36,7 +38,7 @@ class _ExplorePageState extends State<ExplorePage> {
 
   void _loadRecentSearches() {
     setState(() {
-      _recentSearches = ['Avatar', 'Inception', 'The Dark Knight', 'Interstellar'];
+      _recentSearches = [];
     });
   }
 
@@ -90,17 +92,29 @@ class _ExplorePageState extends State<ExplorePage> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
+          padding: const EdgeInsets.only(top: 48, left: 16, right: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Text(
-                'Discover Your Movies',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Discover",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text(
+                    "Your Movies 🎬",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 20),
 
@@ -365,10 +379,9 @@ class _ExplorePageState extends State<ExplorePage> {
   Widget _buildMovieGridItem(Movie movie) {
     return GestureDetector(
       onTap: () {
-        // Navigate to movie detail page
-        // Navigator.push(context, MaterialPageRoute(
-        //   builder: (context) => MovieDetailPage(movie: movie),
-        // ));
+        Navigator.push(context, MaterialPageRoute(
+          builder: (context) => DetailPage(movieId: movie.id),
+        ));
       },
       child: Container(
         decoration: BoxDecoration(
@@ -388,7 +401,7 @@ class _ExplorePageState extends State<ExplorePage> {
                   fit: StackFit.expand,
                   children: [
                     Image.network(
-                      movie.posterPath,
+                      'https://image.tmdb.org/t/p/w500${movie.posterPath}',
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Container(

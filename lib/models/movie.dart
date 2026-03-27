@@ -1,3 +1,5 @@
+import 'genre.dart';
+
 class Movie {
   final int id;
   final String title;
@@ -14,6 +16,7 @@ class Movie {
   final bool adult;
   final bool video;
   final List<int> genreIds;
+  final List<Genre> genres;
 
   Movie({
     required this.id,
@@ -31,6 +34,7 @@ class Movie {
     required this.adult,
     required this.video,
     required this.genreIds,
+    required this.genres,
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
@@ -49,6 +53,10 @@ class Movie {
       voteCount: json['vote_count'] ?? 0,
       adult: json['adult'] ?? false,
       video: json['video'] ?? false,
+      genres: (json['genres'] as List? ?? [])
+          .map((g) => Genre.fromJson(g))
+          .toList(),
+
       genreIds: List<int>.from(json['genre_ids'] ?? []),
     );
   }

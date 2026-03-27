@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:movie_app/models/movie.dart';
 
+import '../models/genre.dart';
+
 class MovieService {
   static const String _baseUrl = 'https://api.themoviedb.org/3';
   static const String _apiKey = '9c767287f2aabaed60bacc5777428501';
@@ -22,7 +24,7 @@ class MovieService {
     }
   }
 
-  static Future<Movie?> getMovieById(int movieId) async {
+  Future<Movie?> getMovieById(int movieId) async {
     var url = Uri.parse("$_baseUrl/movie/$movieId?api_key=$_apiKey");
 
     final http.Response response = await http.get(url);
@@ -126,6 +128,21 @@ class MovieService {
       var results = data['results'] as List;
       movies = results.map<Movie>((json) => Movie.fromJson(json)).toList();
       return movies;
+    } else {
+      return null;
+    }
+  }
+  Future<List<Genre>?> getGenres() async {
+    List<Genre>? genres;
+    var url = Uri.parse("$_baseUrl/genre/movie/list?api_key=$_apiKey");
+
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      var results = data['genres'] as List;
+      genres = results.map<Genre>((json) => Genre.fromJson(json)).toList();
+      return genres;
     } else {
       return null;
     }
