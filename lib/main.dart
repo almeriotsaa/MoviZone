@@ -4,6 +4,8 @@ import 'package:movie_app/pages/HomePage.dart';
 import 'package:movie_app/pages/ExplorePage.dart';
 import 'package:movie_app/pages/WatchlistPage.dart';
 import 'package:movie_app/pages/ProfilePage.dart';
+import 'package:movie_app/pages/SplashScreen.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -16,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: MainPage(),
+      home: SplashScreen(),
     );
   }
 }
