@@ -2,12 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
 import 'package:movie_app/pages/HomePage.dart';
 import 'package:movie_app/pages/ExplorePage.dart';
-import 'package:movie_app/pages/RegisterPage.dart';
 import 'package:movie_app/pages/WatchlistPage.dart';
 import 'package:movie_app/pages/ProfilePage.dart';
 import 'package:movie_app/pages/SplashScreen.dart';
-import 'package:movie_app/pages/LoginPage.dart';
-import 'package:movie_app/pages/LoginPage.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: RegisterPage(),
+      home: SplashScreen(),
     );
   }
 }

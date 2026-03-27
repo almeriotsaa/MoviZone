@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:movie_app/pages/LoginPage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -61,40 +64,83 @@ class _RegisterPageState extends State<RegisterPage>
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Simulasi loading (ganti dengan logic auth asli)
-      await Future.delayed(const Duration(milliseconds: 1500));
+      final url = Uri.parse("http://192.168.1.17/movizone_api/auth/register.php");
 
-      if (mounted) {
+      try {
+        final response = await http.post(
+          url,
+          headers: {"Content-Type": "application/x-www-form-urlencoded"},
+          body: {
+            "email": _emailController.text,
+            "password": _passwordController.text,
+          },
+        ).timeout(const Duration(seconds: 10));
+
         setState(() => _isLoading = false);
 
-        // Tampilkan snackbar sukses
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Row(
-              children: [
-                Icon(Icons.check_circle_outline, color: Colors.black, size: 18),
-                SizedBox(width: 8),
-                Text(
-                  'Akun berhasil dibuat!',
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
-            backgroundColor: Colors.lightBlueAccent,
-            behavior: SnackBarBehavior.floating,
-            shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-            margin: const EdgeInsets.all(16),
-            duration: const Duration(seconds: 2),
-          ),
-        );
+        final data = json.decode(response.body);
 
-        // Kembali ke halaman Login
-        await Future.delayed(const Duration(milliseconds: 2100));
-        if (mounted) Navigator.of(context).pop();
+        // Pretty-print di console
+        const encoder = JsonEncoder.withIndent('  ');
+        final prettyData = encoder.convert(data);
+        print("API Response:\n$prettyData");
+
+        if (data["status"] == "success") {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: const Row(
+                children: [
+                  Icon(Icons.check_circle_outline, color: Colors.black, size: 18),
+                  SizedBox(width: 8),
+                  Text(
+                    'Account created successfully!',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.lightBlueAccent,
+              behavior: SnackBarBehavior.floating,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+              margin: const EdgeInsets.all(16),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+
+          await Future.delayed(const Duration(milliseconds: 2100));
+
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              PageRouteBuilder(
+                transitionDuration: const Duration(milliseconds: 500),
+                pageBuilder: (_, __, ___) => const LoginPage(),
+                transitionsBuilder: (_, animation, __, child) =>
+                    FadeTransition(opacity: animation, child: child),
+              ),
+            );
+          }
+        } else {
+          // Tampilkan semua field response di SnackBar
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Text(prettyData),
+              ),
+              backgroundColor: Colors.redAccent,
+            ),
+          );
+        }
+
+      } catch (e) {
+        setState(() => _isLoading = false);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Gagal koneksi ke server: $e")),
+        );
       }
     }
   }
@@ -105,7 +151,7 @@ class _RegisterPageState extends State<RegisterPage>
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Background gradient
+
           Container(
             decoration: const BoxDecoration(
               gradient: RadialGradient(
@@ -119,7 +165,7 @@ class _RegisterPageState extends State<RegisterPage>
             ),
           ),
 
-          // Decorative circles
+
           Positioned(
             top: -80,
             left: -80,
@@ -145,7 +191,7 @@ class _RegisterPageState extends State<RegisterPage>
             ),
           ),
 
-          // Konten
+
           SafeArea(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -158,30 +204,9 @@ class _RegisterPageState extends State<RegisterPage>
                     children: [
                       const SizedBox(height: 24),
 
-                      // Back button
-                      GestureDetector(
-                        onTap: () => Navigator.of(context).pop(),
-                        child: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF1E1E2C),
-                            borderRadius: BorderRadius.circular(10),
-                            border: Border.all(
-                              color: Colors.white.withOpacity(0.06),
-                            ),
-                          ),
-                          child: const Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: Colors.white70,
-                            size: 16,
-                          ),
-                        ),
-                      ),
 
-                      const SizedBox(height: 32),
 
-                      // Logo + App Name (kecil)
+
                       Row(
                         children: [
                           Container(
@@ -240,9 +265,9 @@ class _RegisterPageState extends State<RegisterPage>
 
                       const SizedBox(height: 28),
 
-                      // Heading
+
                       const Text(
-                        'Buat Akun Baru 🎬',
+                        'Create New Account 🎬',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -251,7 +276,7 @@ class _RegisterPageState extends State<RegisterPage>
                       ),
                       const SizedBox(height: 6),
                       const Text(
-                        'Daftar sekarang dan mulai eksplorasi film',
+                        'Sign up now and start exploring movies',
                         style: TextStyle(
                           color: Colors.white54,
                           fontSize: 14,
@@ -260,12 +285,12 @@ class _RegisterPageState extends State<RegisterPage>
 
                       const SizedBox(height: 32),
 
-                      // Form
+
                       Form(
                         key: _formKey,
                         child: Column(
                           children: [
-                            // Email
+
                             _buildLabel('Email'),
                             const SizedBox(height: 8),
                             TextFormField(
@@ -273,17 +298,17 @@ class _RegisterPageState extends State<RegisterPage>
                               keyboardType: TextInputType.emailAddress,
                               style: const TextStyle(color: Colors.white),
                               decoration: _inputDecoration(
-                                hint: 'contoh@email.com',
+                                hint: 'example@email.com',
                                 icon: Icons.email_outlined,
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Email tidak boleh kosong';
+                                  return 'Email cannot be empty';
                                 }
                                 if (!RegExp(
                                     r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
                                     .hasMatch(value.trim())) {
-                                  return 'Format email tidak valid';
+                                  return 'Invalid email format';
                                 }
                                 return null;
                               },
@@ -291,7 +316,7 @@ class _RegisterPageState extends State<RegisterPage>
 
                             const SizedBox(height: 20),
 
-                            // Password
+
                             _buildLabel('Password'),
                             const SizedBox(height: 8),
                             TextFormField(
@@ -299,7 +324,7 @@ class _RegisterPageState extends State<RegisterPage>
                               obscureText: _obscurePassword,
                               style: const TextStyle(color: Colors.white),
                               decoration: _inputDecoration(
-                                hint: 'Minimal 6 karakter',
+                                hint: 'Minimum 6 characters',
                                 icon: Icons.lock_outline,
                                 suffixIcon: IconButton(
                                   icon: Icon(
@@ -315,10 +340,10 @@ class _RegisterPageState extends State<RegisterPage>
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Password tidak boleh kosong';
+                                  return 'Password cannot be empty';
                                 }
                                 if (value.length < 6) {
-                                  return 'Password minimal 6 karakter';
+                                  return 'Password must be at least 6 characters';
                                 }
                                 return null;
                               },
@@ -326,15 +351,15 @@ class _RegisterPageState extends State<RegisterPage>
 
                             const SizedBox(height: 20),
 
-                            // Confirm Password
-                            _buildLabel('Konfirmasi Password'),
+
+                            _buildLabel('Confirm Password'),
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: _confirmPasswordController,
                               obscureText: _obscureConfirm,
                               style: const TextStyle(color: Colors.white),
                               decoration: _inputDecoration(
-                                hint: 'Ulangi password kamu',
+                                hint: 'Repeat your password',
                                 icon: Icons.lock_outline,
                                 suffixIcon: IconButton(
                                   icon: Icon(
@@ -350,10 +375,10 @@ class _RegisterPageState extends State<RegisterPage>
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Konfirmasi password tidak boleh kosong';
+                                  return 'Confirm password cannot be empty';
                                 }
                                 if (value != _passwordController.text) {
-                                  return 'Password tidak sama';
+                                  return 'Passwords do not match';
                                 }
                                 return null;
                               },
@@ -361,7 +386,7 @@ class _RegisterPageState extends State<RegisterPage>
 
                             const SizedBox(height: 36),
 
-                            // Button Register
+
                             SizedBox(
                               width: double.infinity,
                               height: 52,
@@ -386,7 +411,7 @@ class _RegisterPageState extends State<RegisterPage>
                                   ),
                                 )
                                     : const Text(
-                                  'Buat Akun',
+                                  'Create Account',
                                   style: TextStyle(
                                     color: Colors.black,
                                     fontSize: 16,
@@ -399,30 +424,6 @@ class _RegisterPageState extends State<RegisterPage>
 
                             const SizedBox(height: 24),
 
-                            // Login link
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text(
-                                  'Sudah punya akun? ',
-                                  style: TextStyle(
-                                    color: Colors.white54,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                                GestureDetector(
-                                  onTap: () => Navigator.of(context).pop(),
-                                  child: const Text(
-                                    'Login',
-                                    style: TextStyle(
-                                      color: Colors.lightBlueAccent,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
 
                             const SizedBox(height: 32),
                           ],

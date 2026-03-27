@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:movie_app/pages/RegisterPage.dart';
-import 'package:movie_app/main.dart'; // untuk MainPage
+import 'package:movie_app/main.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -61,7 +61,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      // Simulasi loading (ganti dengan logic auth asli)
+
       await Future.delayed(const Duration(milliseconds: 1500));
 
       if (mounted) {
@@ -84,7 +84,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          // Background gradient
+
           Container(
             decoration: const BoxDecoration(
               gradient: RadialGradient(
@@ -98,7 +98,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ),
           ),
 
-          // Decorative circles
+
           Positioned(
             top: -80,
             right: -80,
@@ -124,7 +124,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             ),
           ),
 
-          // Konten
+
           SafeArea(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -137,7 +137,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                     children: [
                       const SizedBox(height: 48),
 
-                      // Logo + App Name
+
                       Center(
                         child: Column(
                           children: [
@@ -205,9 +205,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
                       const SizedBox(height: 40),
 
-                      // Heading
+
                       const Text(
-                        'Selamat Datang 👋',
+                        'Welcome Back 👋',
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 24,
@@ -216,7 +216,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       ),
                       const SizedBox(height: 6),
                       const Text(
-                        'Login untuk melanjutkan',
+                        'Login to continue',
                         style: TextStyle(
                           color: Colors.white54,
                           fontSize: 14,
@@ -225,12 +225,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
                       const SizedBox(height: 32),
 
-                      // Form
+
                       Form(
                         key: _formKey,
                         child: Column(
                           children: [
-                            // Email
+
                             _buildLabel('Email'),
                             const SizedBox(height: 8),
                             TextFormField(
@@ -238,16 +238,16 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               keyboardType: TextInputType.emailAddress,
                               style: const TextStyle(color: Colors.white),
                               decoration: _inputDecoration(
-                                hint: 'contoh@email.com',
+                                hint: 'example@email.com',
                                 icon: Icons.email_outlined,
                               ),
                               validator: (value) {
                                 if (value == null || value.trim().isEmpty) {
-                                  return 'Email tidak boleh kosong';
+                                  return 'Email cannot be empty';
                                 }
                                 if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
                                     .hasMatch(value.trim())) {
-                                  return 'Format email tidak valid';
+                                  return 'Invalid email format';
                                 }
                                 return null;
                               },
@@ -255,7 +255,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
                             const SizedBox(height: 20),
 
-                            // Password
+
                             _buildLabel('Password'),
                             const SizedBox(height: 8),
                             TextFormField(
@@ -263,7 +263,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               obscureText: _obscurePassword,
                               style: const TextStyle(color: Colors.white),
                               decoration: _inputDecoration(
-                                hint: 'Minimal 6 karakter',
+                                hint: 'Minimum 6 characters',
                                 icon: Icons.lock_outline,
                                 suffixIcon: IconButton(
                                   icon: Icon(
@@ -279,10 +279,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               ),
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
-                                  return 'Password tidak boleh kosong';
+                                  return 'Password cannot be empty';
                                 }
                                 if (value.length < 6) {
-                                  return 'Password minimal 6 karakter';
+                                  return 'Password must be at least 6 characters';
                                 }
                                 return null;
                               },
@@ -290,7 +290,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
                             const SizedBox(height: 36),
 
-                            // Button Login
+
                             SizedBox(
                               width: double.infinity,
                               height: 52,
@@ -328,12 +328,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
                             const SizedBox(height: 24),
 
-                            // Register link
+
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const Text(
-                                  'Belum punya akun? ',
+                                  "Don't have an account? ",
                                   style: TextStyle(
                                     color: Colors.white54,
                                     fontSize: 14,
