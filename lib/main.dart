@@ -41,7 +41,7 @@ class _MainPageState extends State<MainPage> {
     pages = [
       const HomePage(),
       const ExplorePage(),
-      const WatchlistPage(),
+      WatchlistPage(userId: "2"),
       const ProfilePage(),
     ];
   }
