@@ -6,7 +6,10 @@ import 'package:movie_app/services/movie_service.dart';
 import 'DetailPage.dart';
 
 class MovieSwiper extends StatefulWidget {
-  const MovieSwiper({super.key});
+  final List<Movie> movies;
+  final String userId; // Tambahkan ini
+
+  const MovieSwiper({super.key, required this.movies, required this.userId});
 
   @override
   State<MovieSwiper> createState() => _MovieSwiperState();
@@ -82,7 +85,15 @@ class _MovieSwiperState extends State<MovieSwiper> {
 
               return GestureDetector(
                 onTap: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => DetailPage(movieId: movie.id)));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DetailPage(
+                        movieId: movie.id,
+                        userId: widget.userId, // <--- Tambahkan baris ini!
+                      ),
+                    ),
+                  );
                 },
                 child: Container(
                   decoration: BoxDecoration(

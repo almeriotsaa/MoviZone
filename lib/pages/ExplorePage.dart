@@ -5,7 +5,8 @@ import 'package:movie_app/services/movie_service.dart';
 import 'DetailPage.dart';
 
 class ExplorePage extends StatefulWidget {
-  const ExplorePage({super.key});
+  final String userId;
+  const ExplorePage({super.key, required this.userId});
 
   @override
   State<ExplorePage> createState() => _ExplorePageState();
@@ -380,7 +381,11 @@ class _ExplorePageState extends State<ExplorePage> {
     return GestureDetector(
       onTap: () {
         Navigator.push(context, MaterialPageRoute(
-          builder: (context) => DetailPage(movieId: movie.id),
+          builder: (context) => DetailPage(
+            movieId: movie.id,
+            // LANGKAH 2: Kirim userId ke DetailPage
+            userId: widget.userId,
+          ),
         ));
       },
       child: Container(

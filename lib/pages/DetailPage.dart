@@ -8,11 +8,9 @@ import '../services/movie_service.dart';
 
 class DetailPage extends StatefulWidget {
   final int movieId;
-  // Tambahkan userId di sini agar bisa kirim ke database
-  // Untuk sementara kita default "1", nanti sesuaikan dengan sistem loginmu
-  final String userId = "1";
+  final String userId;
 
-  const DetailPage({super.key, required this.movieId});
+  const DetailPage({super.key, required this.movieId, required this.userId});
 
   @override
   State<DetailPage> createState() => _DetailPageState();
@@ -34,11 +32,11 @@ class _DetailPageState extends State<DetailPage> {
   Future<void> _toggleFavorite() async {
     try {
       // Pastikan URL benar
-      var url = Uri.parse("http://172.20.10.6/MOVIZONE_API/favorites/add_favorite.php");
+      var url = Uri.parse("http://192.168.1.17/MOVIZONE_API/favorites/add_favorite.php");
 
       // Kirim data POST
       var response = await http.post(url, body: {
-        "user_id": "2", // PASTIKAN ID INI ADA DI TABEL USERS (misal: 2)
+        "user_id": widget.userId, // PASTIKAN ID INI ADA DI TABEL USERS (misal: 2)
         "movie_id": widget.movieId.toString(), // ID Film dari TMDB
       });
 
@@ -124,7 +122,7 @@ class _DetailPageState extends State<DetailPage> {
                                     margin: const EdgeInsets.only(right: 10),
                                     padding: const EdgeInsets.symmetric(horizontal: 16),
                                     decoration: BoxDecoration(
-                                      color: Colors.redAccent.withOpacity(0.7), // Ganti dikit biar kontras
+                                      color: Colors.lightBlueAccent.withOpacity(0.7), // Ganti dikit biar kontras
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     alignment: Alignment.center,

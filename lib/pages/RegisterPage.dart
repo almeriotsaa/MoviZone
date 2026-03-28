@@ -80,7 +80,6 @@ class _RegisterPageState extends State<RegisterPage>
 
         final data = json.decode(response.body);
 
-        // Pretty-print di console
         const encoder = JsonEncoder.withIndent('  ');
         final prettyData = encoder.convert(data);
         print("API Response:\n$prettyData");
@@ -90,18 +89,23 @@ class _RegisterPageState extends State<RegisterPage>
             SnackBar(
               content: const Row(
                 children: [
-                  Icon(Icons.check_circle_outline, color: Colors.black, size: 18),
+                  Icon(Icons.check_circle_outline,
+                      // ✅ CHANGED: dari Colors.black → putih biar kontras di bg biru gelap
+                      color: Colors.white,
+                      size: 18),
                   SizedBox(width: 8),
                   Text(
                     'Account created successfully!',
                     style: TextStyle(
-                      color: Colors.black,
+                      // ✅ CHANGED: dari Colors.black → putih
+                      color: Colors.white,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
-              backgroundColor: Colors.lightBlueAccent,
+              // ✅ CHANGED: dari Colors.lightBlueAccent → primary blue dari palette
+              backgroundColor: const Color(0xFF2979FF),
               behavior: SnackBarBehavior.floating,
               shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10)),
@@ -123,18 +127,17 @@ class _RegisterPageState extends State<RegisterPage>
             );
           }
         } else {
-          // Tampilkan semua field response di SnackBar
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: SingleChildScrollView(
                 scrollDirection: Axis.horizontal,
                 child: Text(prettyData),
               ),
-              backgroundColor: Colors.redAccent,
+              // ✅ CHANGED: dari Colors.redAccent → merah yang lebih dalam
+              backgroundColor: const Color(0xFFE53935),
             ),
           );
         }
-
       } catch (e) {
         setState(() => _isLoading = false);
 
@@ -148,7 +151,8 @@ class _RegisterPageState extends State<RegisterPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      // ✅ CHANGED: dari Colors.black → scaffold dark navy
+      backgroundColor: const Color(0xFF0D0F14),
       body: Stack(
         children: [
 
@@ -158,13 +162,14 @@ class _RegisterPageState extends State<RegisterPage>
                 center: Alignment(0, -0.4),
                 radius: 1.0,
                 colors: [
-                  Color(0xFF0D1B2A),
-                  Color(0xFF000000),
+                  // ✅ CHANGED: dari Color(0xFF0D1B2A) → surface variant biru gelap
+                  Color(0xFF111827),
+                  // ✅ CHANGED: dari Color(0xFF000000) → scaffold dark navy
+                  Color(0xFF0D0F14),
                 ],
               ),
             ),
           ),
-
 
           Positioned(
             top: -80,
@@ -174,7 +179,8 @@ class _RegisterPageState extends State<RegisterPage>
               height: 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.lightBlueAccent.withOpacity(0.05),
+                // ✅ CHANGED: dari Colors.lightBlueAccent.withOpacity(0.05) → primary blue
+                color: const Color(0xFF2979FF).withOpacity(0.06),
               ),
             ),
           ),
@@ -186,11 +192,11 @@ class _RegisterPageState extends State<RegisterPage>
               height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.lightBlueAccent.withOpacity(0.04),
+                // ✅ CHANGED: dari Colors.lightBlueAccent.withOpacity(0.04) → primary blue
+                color: const Color(0xFF2979FF).withOpacity(0.05),
               ),
             ),
           ),
-
 
           SafeArea(
             child: FadeTransition(
@@ -204,9 +210,6 @@ class _RegisterPageState extends State<RegisterPage>
                     children: [
                       const SizedBox(height: 24),
 
-
-
-
                       Row(
                         children: [
                           Container(
@@ -214,15 +217,18 @@ class _RegisterPageState extends State<RegisterPage>
                             height: 40,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              color: const Color(0xFF1E1E2C),
+                              // ✅ CHANGED: dari Color(0xFF1E1E2C) → surface card
+                              color: const Color(0xFF161A22),
                               border: Border.all(
-                                color: Colors.lightBlueAccent.withOpacity(0.4),
+                                // ✅ CHANGED: dari Colors.lightBlueAccent → primary blue
+                                color: const Color(0xFF2979FF).withOpacity(0.4),
                                 width: 1,
                               ),
                             ),
                             child: const Icon(
                               Icons.movie_filter_rounded,
-                              color: Colors.lightBlueAccent,
+                              // ✅ CHANGED: dari Colors.lightBlueAccent → primary blue
+                              color: Color(0xFF2979FF),
                               size: 20,
                             ),
                           ),
@@ -233,7 +239,8 @@ class _RegisterPageState extends State<RegisterPage>
                                 TextSpan(
                                   text: 'Movi',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    // ✅ CHANGED: dari Colors.white → text primary
+                                    color: Color(0xFFFFFFFF),
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900,
                                     letterSpacing: 1,
@@ -242,7 +249,8 @@ class _RegisterPageState extends State<RegisterPage>
                                 TextSpan(
                                   text: 'Z',
                                   style: TextStyle(
-                                    color: Colors.lightBlueAccent,
+                                    // ✅ CHANGED: dari Colors.lightBlueAccent → primary blue
+                                    color: Color(0xFF2979FF),
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900,
                                     letterSpacing: 1,
@@ -251,7 +259,7 @@ class _RegisterPageState extends State<RegisterPage>
                                 TextSpan(
                                   text: 'One',
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: Color(0xFFFFFFFF),
                                     fontSize: 20,
                                     fontWeight: FontWeight.w900,
                                     letterSpacing: 1,
@@ -265,11 +273,11 @@ class _RegisterPageState extends State<RegisterPage>
 
                       const SizedBox(height: 28),
 
-
                       const Text(
                         'Create New Account 🎬',
                         style: TextStyle(
-                          color: Colors.white,
+                          // ✅ CHANGED: dari Colors.white → text primary
+                          color: Color(0xFFFFFFFF),
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                         ),
@@ -278,13 +286,13 @@ class _RegisterPageState extends State<RegisterPage>
                       const Text(
                         'Sign up now and start exploring movies',
                         style: TextStyle(
-                          color: Colors.white54,
+                          // ✅ CHANGED: dari Colors.white54 → text secondary
+                          color: Color(0xFF9AA3B8),
                           fontSize: 14,
                         ),
                       ),
 
                       const SizedBox(height: 32),
-
 
                       Form(
                         key: _formKey,
@@ -296,7 +304,8 @@ class _RegisterPageState extends State<RegisterPage>
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
-                              style: const TextStyle(color: Colors.white),
+                              // ✅ CHANGED: dari Colors.white → text primary
+                              style: const TextStyle(color: Color(0xFFFFFFFF)),
                               decoration: _inputDecoration(
                                 hint: 'example@email.com',
                                 icon: Icons.email_outlined,
@@ -316,13 +325,12 @@ class _RegisterPageState extends State<RegisterPage>
 
                             const SizedBox(height: 20),
 
-
                             _buildLabel('Password'),
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: _passwordController,
                               obscureText: _obscurePassword,
-                              style: const TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Color(0xFFFFFFFF)),
                               decoration: _inputDecoration(
                                 hint: 'Minimum 6 characters',
                                 icon: Icons.lock_outline,
@@ -331,7 +339,8 @@ class _RegisterPageState extends State<RegisterPage>
                                     _obscurePassword
                                         ? Icons.visibility_off_outlined
                                         : Icons.visibility_outlined,
-                                    color: Colors.white38,
+                                    // ✅ CHANGED: dari Colors.white38 → text hint
+                                    color: const Color(0xFF4A5568),
                                     size: 20,
                                   ),
                                   onPressed: () => setState(() =>
@@ -351,13 +360,12 @@ class _RegisterPageState extends State<RegisterPage>
 
                             const SizedBox(height: 20),
 
-
                             _buildLabel('Confirm Password'),
                             const SizedBox(height: 8),
                             TextFormField(
                               controller: _confirmPasswordController,
                               obscureText: _obscureConfirm,
-                              style: const TextStyle(color: Colors.white),
+                              style: const TextStyle(color: Color(0xFFFFFFFF)),
                               decoration: _inputDecoration(
                                 hint: 'Repeat your password',
                                 icon: Icons.lock_outline,
@@ -366,7 +374,7 @@ class _RegisterPageState extends State<RegisterPage>
                                     _obscureConfirm
                                         ? Icons.visibility_off_outlined
                                         : Icons.visibility_outlined,
-                                    color: Colors.white38,
+                                    color: const Color(0xFF4A5568),
                                     size: 20,
                                   ),
                                   onPressed: () => setState(
@@ -386,16 +394,17 @@ class _RegisterPageState extends State<RegisterPage>
 
                             const SizedBox(height: 36),
 
-
                             SizedBox(
                               width: double.infinity,
                               height: 52,
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _register,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.lightBlueAccent,
+                                  // ✅ CHANGED: dari Colors.lightBlueAccent → primary blue
+                                  backgroundColor: const Color(0xFF2979FF),
                                   disabledBackgroundColor:
-                                  Colors.lightBlueAccent.withOpacity(0.5),
+                                  // ✅ CHANGED: dari Colors.lightBlueAccent.withOpacity → primary dark
+                                  const Color(0xFF2979FF).withOpacity(0.4),
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(14),
                                   ),
@@ -406,14 +415,16 @@ class _RegisterPageState extends State<RegisterPage>
                                   width: 22,
                                   height: 22,
                                   child: CircularProgressIndicator(
-                                    color: Colors.black,
+                                    // ✅ CHANGED: dari Colors.black → putih (kontras di bg biru)
+                                    color: Colors.white,
                                     strokeWidth: 2.5,
                                   ),
                                 )
                                     : const Text(
                                   'Create Account',
                                   style: TextStyle(
-                                    color: Colors.black,
+                                    // ✅ CHANGED: dari Colors.black → putih
+                                    color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                     letterSpacing: 0.5,
@@ -423,8 +434,6 @@ class _RegisterPageState extends State<RegisterPage>
                             ),
 
                             const SizedBox(height: 24),
-
-
                             const SizedBox(height: 32),
                           ],
                         ),
@@ -446,7 +455,8 @@ class _RegisterPageState extends State<RegisterPage>
       child: Text(
         text,
         style: const TextStyle(
-          color: Colors.white70,
+          // ✅ CHANGED: dari Colors.white70 → text secondary
+          color: Color(0xFF9AA3B8),
           fontSize: 13,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
@@ -462,11 +472,14 @@ class _RegisterPageState extends State<RegisterPage>
   }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: const TextStyle(color: Colors.white24, fontSize: 14),
-      prefixIcon: Icon(icon, color: Colors.white38, size: 20),
+      // ✅ CHANGED: dari Colors.white24 → text hint transparan
+      hintStyle: const TextStyle(color: Color(0xFF4A5568), fontSize: 14),
+      // ✅ CHANGED: dari Colors.white38 → text hint
+      prefixIcon: Icon(icon, color: const Color(0xFF4A5568), size: 20),
       suffixIcon: suffixIcon,
       filled: true,
-      fillColor: const Color(0xFF1E1E2C),
+      // ✅ CHANGED: dari Color(0xFF1E1E2C) → surface card
+      fillColor: const Color(0xFF161A22),
       contentPadding:
       const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
@@ -475,27 +488,30 @@ class _RegisterPageState extends State<RegisterPage>
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide(
-          color: Colors.white.withOpacity(0.06),
+        // ✅ CHANGED: dari Colors.white.withOpacity(0.06) → border palette
+        borderSide: const BorderSide(
+          color: Color(0xFF252B38),
           width: 1,
         ),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
+        // ✅ CHANGED: dari Colors.lightBlueAccent → primary blue
         borderSide: const BorderSide(
-          color: Colors.lightBlueAccent,
+          color: Color(0xFF2979FF),
           width: 1.5,
         ),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.redAccent, width: 1),
+        // ✅ CHANGED: dari Colors.redAccent → merah lebih dalam
+        borderSide: const BorderSide(color: Color(0xFFE53935), width: 1),
       ),
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
+        borderSide: const BorderSide(color: Color(0xFFE53935), width: 1.5),
       ),
-      errorStyle: const TextStyle(color: Colors.redAccent, fontSize: 12),
+      errorStyle: const TextStyle(color: Color(0xFFE53935), fontSize: 12),
     );
   }
 }

@@ -6,7 +6,6 @@ import 'package:movie_app/pages/WatchlistPage.dart';
 import 'package:movie_app/pages/ProfilePage.dart';
 import 'package:movie_app/pages/SplashScreen.dart';
 
-
 void main() {
   runApp(const MyApp());
 }
@@ -24,7 +23,9 @@ class MyApp extends StatelessWidget {
 }
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+  // Sekarang MainPage WAJIB menerima userId dari LoginPage
+  final String userId;
+  const MainPage({super.key, required this.userId});
 
   @override
   State<MainPage> createState() => _MainPageState();
@@ -33,17 +34,19 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int currentIndex = 0;
 
-  late final List<Widget> pages;
+  // Menggunakan Getter agar userId selalu sinkron
+  List<Widget> get _pages => [
+    // Tambahkan userId: widget.userId di semua halaman ini
+    HomePage(userId: widget.userId),
+    ExplorePage(userId: widget.userId),
+    WatchlistPage(userId: widget.userId),
+    const ProfilePage(),
+  ];
 
   @override
   void initState() {
     super.initState();
-    pages = [
-      const HomePage(),
-      const ExplorePage(),
-      WatchlistPage(userId: "2"),
-      const ProfilePage(),
-    ];
+    // initState dikosongkan dari inisialisasi list pages lama yang bikin error
   }
 
   @override
@@ -63,13 +66,12 @@ class _MainPageState extends State<MainPage> {
         backgroundColor: const Color(0xff0F0F1A),
         body: IndexedStack(
           index: currentIndex,
-          children: pages,
+          children: _pages, // Memanggil getter _pages
         ),
         bottomNavigationBar: Container(
           color: const Color(0xff1E1E2C),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           child: GNav(
-            key: ValueKey(currentIndex),
             gap: 8,
             activeColor: Colors.white,
             iconSize: 24,
@@ -97,7 +99,6 @@ class _MainPageState extends State<MainPage> {
             ],
             selectedIndex: currentIndex,
             onTabChange: (index) {
-              debugPrint('Tab changed to: $index');
               setState(() {
                 currentIndex = index;
               });
