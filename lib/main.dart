@@ -6,6 +6,8 @@ import 'package:movie_app/pages/WatchlistPage.dart';
 import 'package:movie_app/pages/ProfilePage.dart';
 import 'package:movie_app/pages/SplashScreen.dart';
 
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+
 void main() {
   runApp(const MyApp());
 }
@@ -15,15 +17,18 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      navigatorObservers: [routeObserver],
+      theme: ThemeData.dark(),
+      home: const SplashScreen(),
     );
   }
 }
 
+final GlobalKey<WatchlistPageState> watchlistKey = GlobalKey<WatchlistPageState>();
+
 class MainPage extends StatefulWidget {
-  // Sekarang MainPage WAJIB menerima userId dari LoginPage
   final String userId;
   const MainPage({super.key, required this.userId});
 
@@ -34,20 +39,12 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   int currentIndex = 0;
 
-  // Menggunakan Getter agar userId selalu sinkron
   List<Widget> get _pages => [
-    // Tambahkan userId: widget.userId di semua halaman ini
     HomePage(userId: widget.userId),
     ExplorePage(userId: widget.userId),
-    WatchlistPage(userId: widget.userId),
+    WatchlistPage(key: watchlistKey, userId: widget.userId),
     const ProfilePage(),
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    // initState dikosongkan dari inisialisasi list pages lama yang bikin error
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -66,7 +63,7 @@ class _MainPageState extends State<MainPage> {
         backgroundColor: const Color(0xff0F0F1A),
         body: IndexedStack(
           index: currentIndex,
-          children: _pages, // Memanggil getter _pages
+          children: _pages,
         ),
         bottomNavigationBar: Container(
           color: const Color(0xff1E1E2C),
@@ -77,31 +74,23 @@ class _MainPageState extends State<MainPage> {
             iconSize: 24,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             duration: const Duration(milliseconds: 300),
-            tabBackgroundColor: Color(0xFF2979FF),
+            tabBackgroundColor: const Color(0xFF2979FF),
             color: Colors.white54,
             tabs: const [
-              GButton(
-                icon: Icons.home_outlined,
-                text: 'Home',
-              ),
-              GButton(
-                icon: Icons.explore,
-                text: 'Explore',
-              ),
-              GButton(
-                icon: Icons.bookmark_outline,
-                text: 'Favorites',
-              ),
-              GButton(
-                icon: Icons.person_outline,
-                text: 'Profile',
-              ),
+              GButton(icon: Icons.home_outlined, text: 'Home'),
+              GButton(icon: Icons.explore, text: 'Explore'),
+              GButton(icon: Icons.bookmark_outline, text: 'Favorites'),
+              GButton(icon: Icons.person_outline, text: 'Profile'),
             ],
             selectedIndex: currentIndex,
             onTabChange: (index) {
               setState(() {
                 currentIndex = index;
               });
+
+              if (index == 2) {
+                watchlistKey.currentState?.fetchWatchlist();
+              }
             },
           ),
         ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:movie_app/models/movie.dart';
-import 'package:http/http.dart' as http; // Tambahkan ini
-import 'dart:convert'; // Tambahkan ini
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import '../models/genre.dart';
 import '../services/movie_service.dart';
@@ -28,19 +28,16 @@ class _DetailPageState extends State<DetailPage> {
     super.initState();
   }
 
-  // --- FUNGSI ADD TO FAVORITE ---
   Future<void> _toggleFavorite() async {
     try {
-      // Pastikan URL benar
-      var url = Uri.parse("http://192.168.1.17/MOVIZONE_API/favorites/add_favorite.php");
+      var url = Uri.parse("http://192.168.1.14/MOVIZONE_API/favorites/add_favorite.php");
 
-      // Kirim data POST
       var response = await http.post(url, body: {
-        "user_id": widget.userId, // PASTIKAN ID INI ADA DI TABEL USERS (misal: 2)
-        "movie_id": widget.movieId.toString(), // ID Film dari TMDB
+        "user_id": widget.userId,
+        "movie_id": widget.movieId.toString(),
       });
 
-      print("Response dari PHP: ${response.body}"); // Cek di console Android Studio
+      print("Response dari PHP: ${response.body}");
 
       final data = json.decode(response.body);
 
@@ -49,7 +46,6 @@ class _DetailPageState extends State<DetailPage> {
           const SnackBar(content: Text("Berhasil ditambah ke Watchlist! ❤️")),
         );
       } else {
-        // Ini akan memunculkan pesan "isi semua field" jika PHP gagal baca data
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text("Server: ${data['message']}")),
         );
@@ -63,7 +59,6 @@ class _DetailPageState extends State<DetailPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      // --- MENAMBAHKAN TOMBOL FAVORITE (FAB) ---
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.redAccent,
         onPressed: _toggleFavorite,
@@ -79,19 +74,17 @@ class _DetailPageState extends State<DetailPage> {
           } else {
             final data = snapshot.data!;
 
-            return SingleChildScrollView( // Tambahkan ScrollView agar tidak overflow
+            return SingleChildScrollView(
               child: Column(
                 children: [
                   Stack(
                     children: [
-                      // Poster
                       Image.network(
                         'https://image.tmdb.org/t/p/w500${data.posterPath}',
                         height: 500,
                         width: double.infinity,
                         fit: BoxFit.cover,
                       ),
-                      // Overlay Gradient (Optional biar teks keliatan)
                       Container(
                         height: 500,
                         decoration: BoxDecoration(
@@ -102,7 +95,6 @@ class _DetailPageState extends State<DetailPage> {
                           ),
                         ),
                       ),
-                      // Genres List
                       Positioned(
                         bottom: 20,
                         left: 16,
@@ -122,7 +114,7 @@ class _DetailPageState extends State<DetailPage> {
                                     margin: const EdgeInsets.only(right: 10),
                                     padding: const EdgeInsets.symmetric(horizontal: 16),
                                     decoration: BoxDecoration(
-                                      color: Colors.lightBlueAccent.withOpacity(0.7), // Ganti dikit biar kontras
+                                      color: Colors.lightBlueAccent.withOpacity(0.7),
                                       borderRadius: BorderRadius.circular(20),
                                     ),
                                     alignment: Alignment.center,
@@ -137,7 +129,6 @@ class _DetailPageState extends State<DetailPage> {
                           ),
                         ),
                       ),
-                      // Back Button
                       Positioned(
                         top: 40,
                         left: 20,
@@ -148,7 +139,7 @@ class _DetailPageState extends State<DetailPage> {
                           ),
                           child: IconButton(
                             icon: const Icon(Icons.arrow_back, color: Colors.white),
-                            onPressed: () => Navigator.pop(context),
+                            onPressed: () => Navigator.pop(context, true),
                           ),
                         ),
                       ),
