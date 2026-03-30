@@ -93,7 +93,7 @@ class _ExplorePageState extends State<ExplorePage> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(top: 48, left: 16, right: 16),
+          padding: const EdgeInsets.only(top: 28, left: 16, right: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

@@ -38,43 +38,30 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Welcome,', style: TextStyle(color: Colors.white, fontSize: 14),),
+            const Text('Frank Ocean', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
+          ],
+        ),
+        actions: [
+          const CircleAvatar(
+            backgroundImage: NetworkImage(
+                'https://upload.wikimedia.org/wikipedia/commons/e/e3/Frank_Ocean_2022_Blonded.jpg'),
+          ),
+          const SizedBox(width: 16),
+        ],
+      ),
       body: Padding(
-        padding: const EdgeInsets.only(top: 48, left: 16, right: 16),
+        padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
         child: SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // --- HEADER (Frank Ocean Section) ---
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      const CircleAvatar(
-                        backgroundImage: NetworkImage(
-                            'https://upload.wikimedia.org/wikipedia/commons/e/e3/Frank_Ocean_2022_Blonded.jpg'),
-                      ),
-                      const SizedBox(width: 16,),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text('Welcome,', style: TextStyle(color: Colors.white, fontSize: 14),),
-                          const Text('Frank Ocean', style: TextStyle(color: Colors.white, fontSize: 18),),
-                        ],
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none_outlined, color: Colors.white, size: 24,)),
-                      IconButton(onPressed: () {}, icon: const Icon(Icons.menu, color: Colors.white, size: 24,)),
-                    ],
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20,),
-
-              // --- FIX 1: MovieSwiper sekarang diberi data ---
               FutureBuilder<List<Movie>?>(
                 future: _trendingMoviesFuture,
                 builder: (context, snapshot) {
@@ -229,7 +216,7 @@ Widget _categoryItem(String title, {bool isSelected = false}) {
     padding: const EdgeInsets.symmetric(horizontal: 20),
     margin: const EdgeInsets.only(right: 12),
     decoration: BoxDecoration(
-      color: isSelected ? const Color(0xFF2C4A6E) : const Color(0xff1E1E2C),
+      color: isSelected ? const Color(0xFF2979FF) : const Color(0xff1E1E2C),
       borderRadius: BorderRadius.circular(30),
     ),
     child: Center(

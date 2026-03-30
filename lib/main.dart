@@ -77,7 +77,7 @@ class _MainPageState extends State<MainPage> {
             iconSize: 24,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             duration: const Duration(milliseconds: 300),
-            tabBackgroundColor: Colors.blue.withOpacity(0.3),
+            tabBackgroundColor: Color(0xFF2979FF),
             color: Colors.white54,
             tabs: const [
               GButton(
@@ -90,7 +90,7 @@ class _MainPageState extends State<MainPage> {
               ),
               GButton(
                 icon: Icons.bookmark_outline,
-                text: 'Watchlist',
+                text: 'Favorites',
               ),
               GButton(
                 icon: Icons.person_outline,
