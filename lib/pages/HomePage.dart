@@ -15,23 +15,39 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   MovieService api = MovieService();
-  Future<List<Movie>?>? _trendingMoviesFuture;
-  Future<List<Movie>?>? _popularMovies;
-  Future<List<Movie>?>? _topMovies;
-  Future<List<Movie>?>? _upcomingMovies;
-  Future<List<Genre>?>? _genres;
+  List<Movie>? _trendingMovies;
+  List<Movie>? _popularMovies;
+  List<Movie>? _topMovies;
+  List<Movie>? _upcomingMovies;
+  List<Genre>? _genres;
 
+  bool _isLoading = true;
   String selectedGenre = 'All';
   int? selectedGenreId;
 
   @override
   void initState() {
     super.initState();
-    _trendingMoviesFuture = api.getTrendingMovies();
-    _popularMovies = api.getPopularMovies();
-    _topMovies = api.getTopRatedMovies();
-    _upcomingMovies = api.getUpcomingMovies();
-    _genres = api.getGenres();
+    _loadAllData();
+  }
+
+  Future<void> _loadAllData() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    // Load all data in parallel
+    await Future.wait([
+      api.getTrendingMovies().then((value) => _trendingMovies = value),
+      api.getPopularMovies().then((value) => _popularMovies = value),
+      api.getTopRatedMovies().then((value) => _topMovies = value),
+      api.getUpcomingMovies().then((value) => _upcomingMovies = value),
+      api.getGenres().then((value) => _genres = value),
+    ]);
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
@@ -58,25 +74,22 @@ class _HomePageState extends State<HomePage> {
       ),
       body: Padding(
         padding: const EdgeInsets.only(top: 8, left: 16, right: 16),
-        child: SingleChildScrollView(
+        child: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              FutureBuilder<List<Movie>?>(
-                future: _trendingMoviesFuture,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return MovieSwiper(
-                      movies: snapshot.data!, // Kasih data movies
-                      userId: widget.userId,  // Kasih userId
-                    );
-                  }
-                  return const SizedBox(height: 200, child: Center(child: CircularProgressIndicator()));
-                },
-              ),
+              // Movie Swiper Section
+              if (_trendingMovies != null && _trendingMovies!.isNotEmpty)
+                MovieSwiper(
+                  movies: _trendingMovies!,
+                  userId: widget.userId,
+                ),
 
               const SizedBox(height: 20),
-              // ... Bagian Categories tetap sama ...
+
+              // Categories Section
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
@@ -87,35 +100,12 @@ class _HomePageState extends State<HomePage> {
               const SizedBox(height: 12),
               SizedBox(
                 height: 40,
-                child: FutureBuilder<List<Genre>?>(
-                  future: _genres,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) return const SizedBox();
-                    final genres = snapshot.data ?? [];
-                    final allGenres = [{'id': null, 'name': 'All'}, ...genres.map((g) => {'id': g.id, 'name': g.name})];
-                    return ListView.builder(
-                      scrollDirection: Axis.horizontal,
-                      itemCount: allGenres.length,
-                      itemBuilder: (context, index) {
-                        final genre = allGenres[index];
-                        return GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              selectedGenre = genre['name'] as String;
-                              selectedGenreId = genre['id'] as int?;
-                            });
-                          },
-                          child: _categoryItem(genre['name'] as String, isSelected: selectedGenre == genre['name']),
-                        );
-                      },
-                    );
-                  },
-                ),
+                child: _buildCategoryList(),
               ),
 
-              // --- FIX 2: List Movie menggunakan Helper agar bersih ---
+              // Movie Sections
               _buildSectionTitle('Trending Movies'),
-              _buildMovieRow(_trendingMoviesFuture),
+              _buildMovieRow(_trendingMovies),
 
               _buildSectionTitle('Popular Movies'),
               _buildMovieRow(_popularMovies),
@@ -133,7 +123,29 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // --- HELPER WIDGETS AGAR TIDAK REPOT ---
+  Widget _buildCategoryList() {
+    if (_genres == null) return const SizedBox();
+
+    final genres = _genres!;
+    final allGenres = [{'id': null, 'name': 'All'}, ...genres.map((g) => {'id': g.id, 'name': g.name})];
+
+    return ListView.builder(
+      scrollDirection: Axis.horizontal,
+      itemCount: allGenres.length,
+      itemBuilder: (context, index) {
+        final genre = allGenres[index];
+        return GestureDetector(
+          onTap: () {
+            setState(() {
+              selectedGenre = genre['name'] as String;
+              selectedGenreId = genre['id'] as int?;
+            });
+          },
+          child: _categoryItem(genre['name'] as String, isSelected: selectedGenre == genre['name']),
+        );
+      },
+    );
+  }
 
   Widget _buildSectionTitle(String title) {
     return Padding(
@@ -142,31 +154,35 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildMovieRow(Future<List<Movie>?>? future) {
-    return FutureBuilder<List<Movie>?>(
-      future: future,
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
-        if (!snapshot.hasData || snapshot.data!.isEmpty) return const Text("No Movies", style: TextStyle(color: Colors.white));
+  Widget _buildMovieRow(List<Movie>? movies) {
+    if (movies == null || movies.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(child: Text("No Movies", style: TextStyle(color: Colors.white))),
+      );
+    }
 
-        final movies = snapshot.data!;
-        final filteredMovies = selectedGenreId == null
-            ? movies
-            : movies.where((m) => m.genreIds.contains(selectedGenreId)).toList();
+    final filteredMovies = selectedGenreId == null
+        ? movies
+        : movies.where((m) => m.genreIds.contains(selectedGenreId)).toList();
 
-        return SizedBox(
-          height: 260, // Tinggi ditambah sedikit agar teks tidak overflow
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: filteredMovies.length,
-            itemBuilder: (context, index) => _buildMovieCard(context, filteredMovies[index], widget.userId),
-          ),
-        );
-      },
+    if (filteredMovies.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Center(child: Text("No movies in this category", style: TextStyle(color: Colors.white70))),
+      );
+    }
+
+    return SizedBox(
+      height: 260,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: filteredMovies.length,
+        itemBuilder: (context, index) => _buildMovieCard(context, filteredMovies[index], widget.userId),
+      ),
     );
   }
 
-  // FIX 3: DetailPage Navigator sekarang benar
   Widget _buildMovieCard(BuildContext context, Movie movie, String userId) {
     return GestureDetector(
       onTap: () {
@@ -175,7 +191,7 @@ class _HomePageState extends State<HomePage> {
             MaterialPageRoute(
                 builder: (context) => DetailPage(
                   movieId: movie.id,
-                  userId: widget.userId, // KIRIM userId KE DETAIL
+                  userId: widget.userId,
                 )
             )
         );
@@ -191,7 +207,12 @@ class _HomePageState extends State<HomePage> {
               child: Image.network(
                 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
                 height: 180, width: 150, fit: BoxFit.cover,
-                errorBuilder: (context, e, s) => Container(height: 180, width: 150, color: Colors.grey[900]),
+                errorBuilder: (context, e, s) => Container(
+                  height: 180,
+                  width: 150,
+                  color: Colors.grey[900],
+                  child: const Icon(Icons.error, color: Colors.white54),
+                ),
               ),
             ),
             const SizedBox(height: 8),
