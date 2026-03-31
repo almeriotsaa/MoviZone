@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:movie_app/pages/RegisterPage.dart';
 import 'package:movie_app/main.dart';
 
+import '../services/auth_service.dart';
+
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
 
@@ -15,6 +17,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+
+  final AuthService _authService = AuthService();
 
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -68,7 +72,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       print("Password: ${_passwordController.text}");
 
       try {
-        final url = Uri.parse("http://192.168.1.14/MOVIZONE_API/auth/login.php");
+        final url = Uri.parse("http://192.168.0.136/MOVIZONE_API/auth/login.php");
 
         final response = await http.post(
           url,
@@ -87,8 +91,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
           if (data['status'] == 'success') {
             String loggedInUserId = data['user_id'].toString();
+            String userEmail = _emailController.text.trim();
 
             print("LOGIN BERHASIL! User ID: $loggedInUserId");
+
+            // ** TAMBAHKAN: Simpan data login **
+            await _authService.saveLoginData(loggedInUserId, userEmail);
 
             if (mounted) {
               setState(() => _isLoading = false);

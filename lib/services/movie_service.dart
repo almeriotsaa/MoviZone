@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:movie_app/models/movie.dart';
 
+import '../models/cast.dart';
 import '../models/genre.dart';
 
 class MovieService {
@@ -145,6 +146,64 @@ class MovieService {
       return genres;
     } else {
       return null;
+    }
+  }
+
+  Future<String?> getMovieTrailer(int movieId) async {
+    var url = Uri.parse("$_baseUrl/movie/$movieId/videos?api_key=$_apiKey");
+
+    final response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      var data = jsonDecode(response.body);
+      var results = data['results'] as List;
+
+      // cari trailer dari YouTube
+      for (var video in results) {
+        if (video['type'] == 'Teaser' && video['site'] == 'YouTube') {
+          return video['key']; // ini ID YouTube
+        }
+      }
+    }
+
+    return null;
+  }
+
+  // Di MovieService, tambahkan debug di getMovieCast method
+  Future<List<Cast>?> getMovieCast(int movieId) async {
+    try {
+      final url = Uri.parse('https://api.themoviedb.org/3/movie/$movieId/credits?api_key=$_apiKey');
+      final response = await http.get(url);
+
+      print('--- CAST API RESPONSE ---');
+      print('Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        // Cek apakah ada data cast
+        if (data.containsKey('cast')) {
+          print('Jumlah cast: ${data['cast'].length}');
+
+          List<Cast> castList = (data['cast'] as List)
+              .map((json) => Cast.fromJson(json))
+              .take(10) // Ambil 10 cast saja
+              .toList();
+
+          print('Cast pertama: ${castList.isNotEmpty ? castList[0].name : 'Tidak ada cast'}');
+          return castList;
+        } else {
+          print('Key "cast" tidak ditemukan dalam response');
+          return [];
+        }
+      } else {
+        print('Error: ${response.statusCode}');
+        return [];
+      }
+    } catch (e) {
+      print('Exception di getMovieCast: $e');
+      return [];
     }
   }
 }

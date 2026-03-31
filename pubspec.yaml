@@ -38,6 +38,8 @@ dependencies:
   google_nav_bar: ^5.0.7
   dio: ^5.9.2
   http: ^1.6.0
+  shared_preferences: ^2.2.2
+  youtube_player_flutter: ^8.1.2
 
 dev_dependencies:
   flutter_test:

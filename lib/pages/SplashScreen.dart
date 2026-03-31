@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:movie_app/main.dart';
 import 'dart:async';
 import 'package:movie_app/pages/HomePage.dart';
 import 'package:movie_app/pages/LoginPage.dart';
+
+import '../services/auth_service.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -17,10 +20,13 @@ class _SplashScreenState extends State<SplashScreen>
   late Animation<double> _fadeAnim;
   late Animation<double> _scaleAnim;
 
+  final AuthService _authService = AuthService();
+
   @override
   void initState() {
     super.initState();
 
+    _checkLoginStatus();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
 
     _controller = AnimationController(
@@ -50,6 +56,37 @@ class _SplashScreenState extends State<SplashScreen>
         );
       }
     });
+  }
+
+  Future<void> _checkLoginStatus() async {
+    // Beri delay sedikit agar splash screen terlihat
+    await Future.delayed(const Duration(seconds: 1));
+
+    final isLoggedIn = await _authService.isLoggedIn();
+
+    if (isLoggedIn && mounted) {
+      final loginData = await _authService.getLoginData();
+      if (loginData != null && loginData['userId'] != null) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => MainPage(userId: loginData['userId']!),
+          ),
+        );
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      }
+    } else {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      }
+    }
   }
 
   @override
