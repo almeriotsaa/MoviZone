@@ -72,7 +72,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       print("Password: ${_passwordController.text}");
 
       try {
-        final url = Uri.parse("http://192.168.0.136/MOVIZONE_API/auth/login.php");
+        final url = Uri.parse("http://192.168.100.115/MOVIZONE_API/auth/login.php");
 
         final response = await http.post(
           url,

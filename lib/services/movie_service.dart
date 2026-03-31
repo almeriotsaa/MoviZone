@@ -160,7 +160,7 @@ class MovieService {
 
       // cari trailer dari YouTube
       for (var video in results) {
-        if (video['type'] == 'Teaser' && video['site'] == 'YouTube') {
+        if (video['type'] == 'Trailer' && video['site'] == 'YouTube') {
           return video['key']; // ini ID YouTube
         }
       }
