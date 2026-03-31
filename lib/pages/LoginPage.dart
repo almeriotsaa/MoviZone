@@ -68,8 +68,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       print("Password: ${_passwordController.text}");
 
       try {
-        // PASTIKAN IP INI BENAR! Cek CMD > ipconfig
-        final url = Uri.parse("http://192.168.1.17/MOVIZONE_API/auth/login.php");
+        final url = Uri.parse("http://192.168.1.14/MOVIZONE_API/auth/login.php");
 
         final response = await http.post(
           url,
@@ -81,14 +80,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
 
         print("--- RESPON DITERIMA ---");
         print("Status Code: ${response.statusCode}");
-        print("Isi Body: ${response.body}"); // CEK DI CONSOLE VS CODE!
+        print("Isi Body: ${response.body}");
 
         if (response.statusCode == 200) {
           final Map<String, dynamic> data = json.decode(response.body);
 
           if (data['status'] == 'success') {
-            // AMBIL USER ID (Sesuaikan dengan file PHP kamu)
-            // PHP kamu kirim "user_id"
             String loggedInUserId = data['user_id'].toString();
 
             print("LOGIN BERHASIL! User ID: $loggedInUserId");
@@ -96,7 +93,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             if (mounted) {
               setState(() => _isLoading = false);
 
-              // PINDAH HALAMAN
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(
@@ -114,7 +110,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
         }
       } catch (e) {
         print("--- ERROR TOTAL ---");
-        print("Pesan Error: $e"); // LIHAT DI SINI KALAU KONEKSI PUTUS
+        print("Pesan Error: $e");
         _showError("Gagal terhubung ke server. Cek IP/Wi-Fi!");
       } finally {
         if (mounted) setState(() => _isLoading = false);
@@ -122,7 +118,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     }
   }
 
-  // Fungsi pembantu buat nampilin error
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), backgroundColor: Colors.redAccent),
@@ -132,7 +127,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // ✅ CHANGED: Colors.black → scaffold dark navy
       backgroundColor: const Color(0xFF0D0F14),
       body: Stack(
         children: [
@@ -143,9 +137,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                 center: Alignment(0, -0.4),
                 radius: 1.0,
                 colors: [
-                  // ✅ CHANGED: Color(0xFF0D1B2A) → surface variant biru gelap
                   Color(0xFF111827),
-                  // ✅ CHANGED: Color(0xFF000000) → scaffold dark navy
                   Color(0xFF0D0F14),
                 ],
               ),
@@ -160,7 +152,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               height: 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                // ✅ CHANGED: Colors.lightBlueAccent.withOpacity(0.05) → primary blue
                 color: const Color(0xFF2979FF).withOpacity(0.06),
               ),
             ),
@@ -173,7 +164,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                // ✅ CHANGED: Colors.lightBlueAccent.withOpacity(0.04) → primary blue
                 color: const Color(0xFF2979FF).withOpacity(0.05),
               ),
             ),
@@ -199,25 +189,21 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               height: 72,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                // ✅ CHANGED: Color(0xFF1E1E2C) → surface card
                                 color: const Color(0xFF161A22),
                                 boxShadow: [
                                   BoxShadow(
-                                    // ✅ CHANGED: Colors.lightBlueAccent.withOpacity(0.3) → primary blue
                                     color: const Color(0xFF2979FF).withOpacity(0.25),
                                     blurRadius: 20,
                                     spreadRadius: 2,
                                   ),
                                 ],
                                 border: Border.all(
-                                  // ✅ CHANGED: Colors.lightBlueAccent.withOpacity(0.5) → primary blue
                                   color: const Color(0xFF2979FF).withOpacity(0.5),
                                   width: 1.5,
                                 ),
                               ),
                               child: const Icon(
                                 Icons.movie_filter_rounded,
-                                // ✅ CHANGED: Colors.lightBlueAccent → primary blue
                                 color: Color(0xFF2979FF),
                                 size: 34,
                               ),
@@ -229,7 +215,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                   TextSpan(
                                     text: 'Movi',
                                     style: TextStyle(
-                                      // ✅ CHANGED: Colors.white → text primary
                                       color: Color(0xFFFFFFFF),
                                       fontSize: 28,
                                       fontWeight: FontWeight.w900,
@@ -239,7 +224,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                   TextSpan(
                                     text: 'Z',
                                     style: TextStyle(
-                                      // ✅ CHANGED: Colors.lightBlueAccent → primary blue
                                       color: Color(0xFF2979FF),
                                       fontSize: 28,
                                       fontWeight: FontWeight.w900,
@@ -267,7 +251,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       const Text(
                         'Welcome Back 👋',
                         style: TextStyle(
-                          // ✅ CHANGED: Colors.white → text primary
                           color: Color(0xFFFFFFFF),
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
@@ -277,7 +260,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                       const Text(
                         'Login to continue',
                         style: TextStyle(
-                          // ✅ CHANGED: Colors.white54 → text secondary
                           color: Color(0xFF9AA3B8),
                           fontSize: 14,
                         ),
@@ -295,7 +277,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                             TextFormField(
                               controller: _emailController,
                               keyboardType: TextInputType.emailAddress,
-                              // ✅ CHANGED: Colors.white → text primary
                               style: const TextStyle(color: Color(0xFFFFFFFF)),
                               decoration: _inputDecoration(
                                 hint: 'example@email.com',
@@ -329,7 +310,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                     _obscurePassword
                                         ? Icons.visibility_off_outlined
                                         : Icons.visibility_outlined,
-                                    // ✅ CHANGED: Colors.white38 → text hint
                                     color: const Color(0xFF4A5568),
                                     size: 20,
                                   ),
@@ -356,9 +336,7 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                               child: ElevatedButton(
                                 onPressed: _isLoading ? null : _login,
                                 style: ElevatedButton.styleFrom(
-                                  // ✅ CHANGED: Colors.lightBlueAccent → primary blue
                                   backgroundColor: const Color(0xFF2979FF),
-                                  // ✅ CHANGED: Colors.lightBlueAccent.withOpacity(0.5) → primary blue redup
                                   disabledBackgroundColor:
                                   const Color(0xFF2979FF).withOpacity(0.4),
                                   shape: RoundedRectangleBorder(
@@ -371,7 +349,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                   width: 22,
                                   height: 22,
                                   child: CircularProgressIndicator(
-                                    // ✅ CHANGED: Colors.black → putih (kontras di bg biru)
                                     color: Colors.white,
                                     strokeWidth: 2.5,
                                   ),
@@ -379,7 +356,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                     : const Text(
                                   'Login',
                                   style: TextStyle(
-                                    // ✅ CHANGED: Colors.black → putih
                                     color: Colors.white,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
@@ -397,7 +373,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                 const Text(
                                   "Don't have an account? ",
                                   style: TextStyle(
-                                    // ✅ CHANGED: Colors.white54 → text secondary
                                     color: Color(0xFF9AA3B8),
                                     fontSize: 14,
                                   ),
@@ -425,7 +400,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
                                   child: const Text(
                                     'Register',
                                     style: TextStyle(
-                                      // ✅ CHANGED: Colors.lightBlueAccent → primary blue
                                       color: Color(0xFF2979FF),
                                       fontSize: 14,
                                       fontWeight: FontWeight.bold,
@@ -454,7 +428,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       child: Text(
         text,
         style: const TextStyle(
-          // ✅ CHANGED: Colors.white70 → text secondary
           color: Color(0xFF9AA3B8),
           fontSize: 13,
           fontWeight: FontWeight.w600,
@@ -471,13 +444,10 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   }) {
     return InputDecoration(
       hintText: hint,
-      // ✅ CHANGED: Colors.white24 → text hint
       hintStyle: const TextStyle(color: Color(0xFF4A5568), fontSize: 14),
-      // ✅ CHANGED: Colors.white38 → text hint
       prefixIcon: Icon(icon, color: const Color(0xFF4A5568), size: 20),
       suffixIcon: suffixIcon,
       filled: true,
-      // ✅ CHANGED: Color(0xFF1E1E2C) → surface card
       fillColor: const Color(0xFF161A22),
       contentPadding:
       const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
@@ -487,7 +457,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        // ✅ CHANGED: Colors.white.withOpacity(0.06) → border palette
         borderSide: const BorderSide(
           color: Color(0xFF252B38),
           width: 1,
@@ -495,7 +464,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        // ✅ CHANGED: Colors.lightBlueAccent → primary blue
         borderSide: const BorderSide(
           color: Color(0xFF2979FF),
           width: 1.5,
@@ -503,7 +471,6 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        // ✅ CHANGED: Colors.redAccent → merah lebih dalam
         borderSide: const BorderSide(color: Color(0xFFE53935), width: 1),
       ),
       focusedErrorBorder: OutlineInputBorder(
