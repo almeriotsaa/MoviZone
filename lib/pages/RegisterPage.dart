@@ -3,6 +3,8 @@ import 'package:movie_app/pages/LoginPage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import '../services/database_service.dart';
+
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
 
@@ -17,6 +19,8 @@ class _RegisterPageState extends State<RegisterPage>
   final _emailController          = TextEditingController();
   final _passwordController       = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+
+  final DatabaseService _dbService = DatabaseService();
 
   bool _obscurePassword = true;
   bool _obscureConfirm  = true;
@@ -66,22 +70,14 @@ class _RegisterPageState extends State<RegisterPage>
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      final url = Uri.parse("http://192.168.1.13/movizone_api/auth/register.php");
-
       try {
-        final response = await http.post(
-          url,
-          headers: {"Content-Type": "application/x-www-form-urlencoded"},
-          body: {
-            "username": _usernameController.text.trim(),
-            "email":    _emailController.text.trim(),
-            "password": _passwordController.text,
-          },
-        ).timeout(const Duration(seconds: 10));
+        final data = await _dbService.register(
+          username: _usernameController.text.trim(),
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
+        );
 
         setState(() => _isLoading = false);
-
-        final data = json.decode(response.body);
 
         if (data["status"] == "success") {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -129,7 +125,9 @@ class _RegisterPageState extends State<RegisterPage>
       } catch (e) {
         setState(() => _isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Failed to connect to server: $e")),
+          const SnackBar(
+            content: Text("Something went wrong"),
+          ),
         );
       }
     }

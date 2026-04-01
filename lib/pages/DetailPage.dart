@@ -5,6 +5,7 @@ import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 import 'dart:convert';
 
 import '../models/cast.dart';
+import '../services/database_service.dart';
 import '../services/movie_service.dart';
 
 class DetailPage extends StatefulWidget {
@@ -29,6 +30,8 @@ class _DetailPageState extends State<DetailPage> {
   YoutubePlayerController? _youtubeController;
   bool _hasTrailer = false;
   bool _playerError = false;
+
+  final DatabaseService _dbService = DatabaseService();
 
   @override
   void initState() {
@@ -93,16 +96,10 @@ class _DetailPageState extends State<DetailPage> {
 
   Future<void> _toggleFavorite() async {
     try {
-      final url = Uri.parse(
-        "http://192.168.1.13/MOVIZONE_API/favorites/add_favorite.php",
+      final data = await _dbService.addFavorite(
+        userId: widget.userId,
+        movieId: widget.movieId,
       );
-
-      final response = await http.post(url, body: {
-        "user_id": widget.userId,
-        "movie_id": widget.movieId.toString(),
-      });
-
-      final data = json.decode(response.body);
 
       if (!mounted) return;
 

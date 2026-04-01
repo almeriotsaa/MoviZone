@@ -5,6 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/movie.dart';
+import '../services/database_service.dart';
 import '../services/movie_service.dart';
 import '../services/auth_service.dart';
 import 'LoginPage.dart';
@@ -31,11 +32,10 @@ class _ProfilePageState extends State<ProfilePage>
 
   final MovieService _movieService = MovieService();
   final AuthService  _authService  = AuthService();
+  final DatabaseService _dbService = DatabaseService();
 
   late AnimationController _animCtrl;
   late Animation<double>   _fadeAnim;
-
-  static const String _baseUrl = 'http://192.168.1.13/MOVIZONE_API';
 
   static const Color _bgPrimary   = Color(0xff0D0D1A);
   static const Color _bgCard      = Color(0xff1A1A2E);
@@ -79,21 +79,19 @@ class _ProfilePageState extends State<ProfilePage>
       if (mounted) setState(() => isLoading = false);
       return;
     }
+
     try {
-      final res = await http
-          .get(Uri.parse('$_baseUrl/users/get_profile.php?user_id=$userId'))
-          .timeout(const Duration(seconds: 10));
-      if (res.statusCode == 200) {
-        final data = json.decode(res.body);
-        if (data['status'] == 'success' && mounted) {
-          setState(() {
-            username        = data['username']     ?? '';
-            email           = data['email']        ?? email;
-            profileImageUrl = data['profile_image'];
-          });
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString('user_username', username);
-        }
+      final data = await _dbService.getUserProfile2(userId);
+
+      if (data['status'] == 'success' && mounted) {
+        setState(() {
+          username        = data['username'] ?? '';
+          email           = data['email'] ?? email;
+          profileImageUrl = data['profile_image'];
+        });
+
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('user_username', username);
       }
     } catch (e) {
       debugPrint('Fetch profile error: $e');
@@ -107,21 +105,18 @@ class _ProfilePageState extends State<ProfilePage>
       if (mounted) setState(() => isLoadingFavs = false);
       return;
     }
+
     try {
-      final res = await http
-          .get(Uri.parse(
-          '$_baseUrl/favorites/get_favorites.php?user_id=$userId'))
-          .timeout(const Duration(seconds: 10));
-      if (res.statusCode == 200) {
-        final List<dynamic> ids = json.decode(res.body);
-        final movies = await Future.wait(ids.map((id) async {
-          int cleanId = int.parse(id.toString().trim());
-          return await _movieService.getMovieById(cleanId);
-        }));
-        if (mounted) {
-          setState(() =>
-          favoriteMovies = movies.whereType<Movie>().toList());
-        }
+      final ids = await _dbService.getFavorites2(userId);
+
+      final movies = await Future.wait(ids.map((id) async {
+        int cleanId = int.parse(id.toString().trim());
+        return await _movieService.getMovieById(cleanId);
+      }));
+
+      if (mounted) {
+        setState(() =>
+        favoriteMovies = movies.whereType<Movie>().toList());
       }
     } catch (e) {
       debugPrint('Fetch favorites error: $e');
@@ -357,13 +352,10 @@ class _ProfilePageState extends State<ProfilePage>
 
   Future<void> _deletePhoto() async {
     setState(() => isSaving = true);
-    try {
-      final res = await http.post(
-        Uri.parse('$_baseUrl/users/delete_profile_image.php'),
-        body: {'user_id': userId},
-      ).timeout(const Duration(seconds: 10));
 
-      final data = json.decode(res.body);
+    try {
+      final data = await _dbService.deleteProfileImage(userId);
+
       if (data['status'] == 'success' && mounted) {
         setState(() => profileImageUrl = null);
         _showSnackBar('Profile photo removed successfully', isError: false);
@@ -377,33 +369,30 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  Future<void> _saveProfile(
-      {required String newUsername, File? imageFile}) async {
+  Future<void> _saveProfile({
+    required String newUsername,
+    File? imageFile,
+  }) async {
     if (newUsername.isEmpty && imageFile == null) return;
+
     setState(() => isSaving = true);
+
     try {
-      final request = http.MultipartRequest(
-        'POST',
-        Uri.parse('$_baseUrl/users/update_profile.php'),
+      final data = await _dbService.updateProfile(
+        userId: userId,
+        username: newUsername,
+        imageFile: imageFile,
       );
-      request.fields['user_id']  = userId;
-      request.fields['username'] = newUsername;
-      if (imageFile != null) {
-        request.files.add(await http.MultipartFile.fromPath(
-            'profile_image', imageFile.path));
-      }
-      final streamed =
-      await request.send().timeout(const Duration(seconds: 20));
-      final res  = await http.Response.fromStream(streamed);
-      final data = json.decode(res.body);
 
       if (data['status'] == 'success' && mounted) {
         setState(() {
-          username        = data['username']      ?? newUsername;
+          username        = data['username'] ?? newUsername;
           profileImageUrl = data['profile_image'] ?? profileImageUrl;
         });
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setString('user_username', username);
+
         _showSnackBar('Profile updated successfully ✅', isError: false);
       } else {
         _showSnackBar(data['message'] ?? 'Failed to update profile');

@@ -5,6 +5,7 @@ import 'package:movie_app/pages/RegisterPage.dart';
 import 'package:movie_app/main.dart';
 
 import '../services/auth_service.dart';
+import '../services/database_service.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -19,6 +20,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
   final _passwordController = TextEditingController();
 
   final AuthService _authService = AuthService();
+
+  final DatabaseService _dbService = DatabaseService();
 
   bool _obscurePassword = true;
   bool _isLoading = false;
@@ -67,58 +70,33 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      print("--- START LOGIN PROCESS ---");
-      print("Email: ${_emailController.text}");
-      print("Password: ${_passwordController.text}");
-
       try {
-        final url = Uri.parse("http://192.168.1.13/MOVIZONE_API/auth/login.php");
+        final data = await _dbService.login(
+          email: _emailController.text.trim(),
+          password: _passwordController.text.trim(),
+        );
 
-        final response = await http.post(
-          url,
-          body: {
-            "email": _emailController.text.trim(),
-            "password": _passwordController.text.trim(),
-          },
-        ).timeout(const Duration(seconds: 10));
+        if (data['status'] == 'success') {
+          String loggedInUserId = data['user_id'].toString();
+          String userEmail = _emailController.text.trim();
 
-        print("--- RESPONSE RECEIVED ---");
-        print("Status Code: ${response.statusCode}");
-        print("Body Content: ${response.body}");
+          await _authService.saveLoginData(loggedInUserId, userEmail);
 
-        if (response.statusCode == 200) {
-          final Map<String, dynamic> data = json.decode(response.body);
+          if (mounted) {
+            setState(() => _isLoading = false);
 
-          if (data['status'] == 'success') {
-            String loggedInUserId = data['user_id'].toString();
-            String userEmail = _emailController.text.trim();
-
-            print("LOGIN SUCCESS! User ID: $loggedInUserId");
-
-            await _authService.saveLoginData(loggedInUserId, userEmail);
-
-            if (mounted) {
-              setState(() => _isLoading = false);
-
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => MainPage(userId: loggedInUserId),
-                ),
-              );
-            }
-          } else {
-            print("LOGIN FAILED: ${data['message']}");
-            _showError(data['message'] ?? "Incorrect Email or Password");
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MainPage(userId: loggedInUserId),
+              ),
+            );
           }
         } else {
-          print("SERVER ERROR: ${response.statusCode}");
-          _showError("Server Error: ${response.statusCode}");
+          _showError(data['message'] ?? "Incorrect Email or Password");
         }
       } catch (e) {
-        print("--- TOTAL ERROR ---");
-        print("Error Message: $e");
-        _showError("Failed to connect to server. Check IP/Wi-Fi!");
+        _showError("Something went wrong");
       } finally {
         if (mounted) setState(() => _isLoading = false);
       }
