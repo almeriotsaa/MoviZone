@@ -28,7 +28,7 @@ class _DetailPageState extends State<DetailPage> {
 
   YoutubePlayerController? _youtubeController;
   bool _hasTrailer = false;
-  bool _playerError = false; // ← flag error player
+  bool _playerError = false;
 
   @override
   void initState() {
@@ -59,7 +59,6 @@ class _DetailPageState extends State<DetailPage> {
           ),
         );
 
-        // ← Listener untuk detect error playback
         _youtubeController!.addListener(() {
           if (_youtubeController!.value.hasError && !_playerError) {
             if (mounted) {
@@ -95,7 +94,7 @@ class _DetailPageState extends State<DetailPage> {
   Future<void> _toggleFavorite() async {
     try {
       final url = Uri.parse(
-        "http://192.168.1.14/MOVIZONE_API/favorites/add_favorite.php",
+        "http://192.168.1.13/MOVIZONE_API/favorites/add_favorite.php",
       );
 
       final response = await http.post(url, body: {
@@ -110,7 +109,7 @@ class _DetailPageState extends State<DetailPage> {
       if (data['status'] == "success") {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Berhasil ditambah ke Watchlist! ❤️"),
+            content: Text("Successfully added to Watchlist! ❤️"),
             backgroundColor: Colors.green,
           ),
         );
@@ -127,7 +126,7 @@ class _DetailPageState extends State<DetailPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text("Gagal menambahkan ke watchlist"),
+            content: Text("Failed to add to watchlist"),
             backgroundColor: Colors.red,
           ),
         );
@@ -137,7 +136,7 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    return YoutubePlayerBuilder( // ← Wrap dengan YoutubePlayerBuilder
+    return YoutubePlayerBuilder(
       player: YoutubePlayer(
         controller: _youtubeController ?? YoutubePlayerController(initialVideoId: ''),
         showVideoProgressIndicator: true,
@@ -165,7 +164,7 @@ class _DetailPageState extends State<DetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildHeroSection(_movie!, player), // ← pass player
+                _buildHeroSection(_movie!, player),
                 _buildInfoSection(_movie!),
                 _buildOverviewSection(_movie!),
                 _buildCastSection(),
@@ -181,7 +180,6 @@ class _DetailPageState extends State<DetailPage> {
   Widget _buildHeroSection(Movie movie, Widget player) {
     return Stack(
       children: [
-        // ← Tampilkan player hanya jika ada trailer DAN tidak error
         if (_hasTrailer && !_playerError)
           SizedBox(
             height: 260,
@@ -189,7 +187,6 @@ class _DetailPageState extends State<DetailPage> {
             child: player,
           )
         else
-        // ← Fallback ke backdrop image
           Stack(
             children: [
               Image.network(
@@ -203,7 +200,6 @@ class _DetailPageState extends State<DetailPage> {
                   child: const Icon(Icons.movie, color: Colors.white24, size: 64),
                 ),
               ),
-              // ← Info bahwa trailer tidak tersedia
               if (_playerError)
                 Positioned(
                   bottom: 12,
@@ -222,7 +218,7 @@ class _DetailPageState extends State<DetailPage> {
                           Icon(Icons.info_outline, color: Colors.white54, size: 14),
                           SizedBox(width: 6),
                           Text(
-                            "Trailer tidak tersedia untuk diputar",
+                            "Trailer unavailable for playback",
                             style: TextStyle(color: Colors.white54, fontSize: 12),
                           ),
                         ],
@@ -233,7 +229,6 @@ class _DetailPageState extends State<DetailPage> {
             ],
           ),
 
-        // Gradient overlay (hanya saat tidak ada player aktif)
         if (!_hasTrailer || _playerError)
           Container(
             height: 260,
@@ -249,7 +244,6 @@ class _DetailPageState extends State<DetailPage> {
             ),
           ),
 
-        // Back button
         Positioned(
           top: 28,
           left: 16,
@@ -268,8 +262,6 @@ class _DetailPageState extends State<DetailPage> {
     );
   }
 
-  // _buildInfoSection, _buildOverviewSection, _buildCastSection
-  // → SAMA PERSIS seperti kode asli kamu, tidak perlu diubah
   Widget _buildInfoSection(Movie movie) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),

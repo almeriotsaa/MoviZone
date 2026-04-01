@@ -7,7 +7,7 @@ import 'DetailPage.dart';
 
 class MovieSwiper extends StatefulWidget {
   final List<Movie> movies;
-  final String userId; // Tambahkan ini
+  final String userId;
 
   const MovieSwiper({super.key, required this.movies, required this.userId});
 
@@ -90,7 +90,7 @@ class _MovieSwiperState extends State<MovieSwiper> {
                     MaterialPageRoute(
                       builder: (context) => DetailPage(
                         movieId: movie.id,
-                        userId: widget.userId, // <--- Tambahkan baris ini!
+                        userId: widget.userId,
                       ),
                     ),
                   );

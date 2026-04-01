@@ -67,12 +67,12 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      print("--- MULAI PROSES LOGIN ---");
+      print("--- START LOGIN PROCESS ---");
       print("Email: ${_emailController.text}");
       print("Password: ${_passwordController.text}");
 
       try {
-        final url = Uri.parse("http://192.168.100.115/MOVIZONE_API/auth/login.php");
+        final url = Uri.parse("http://192.168.1.13/MOVIZONE_API/auth/login.php");
 
         final response = await http.post(
           url,
@@ -82,9 +82,9 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
           },
         ).timeout(const Duration(seconds: 10));
 
-        print("--- RESPON DITERIMA ---");
+        print("--- RESPONSE RECEIVED ---");
         print("Status Code: ${response.statusCode}");
-        print("Isi Body: ${response.body}");
+        print("Body Content: ${response.body}");
 
         if (response.statusCode == 200) {
           final Map<String, dynamic> data = json.decode(response.body);
@@ -93,9 +93,8 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
             String loggedInUserId = data['user_id'].toString();
             String userEmail = _emailController.text.trim();
 
-            print("LOGIN BERHASIL! User ID: $loggedInUserId");
+            print("LOGIN SUCCESS! User ID: $loggedInUserId");
 
-            // ** TAMBAHKAN: Simpan data login **
             await _authService.saveLoginData(loggedInUserId, userEmail);
 
             if (mounted) {
@@ -109,17 +108,17 @@ class _LoginPageState extends State<LoginPage> with TickerProviderStateMixin {
               );
             }
           } else {
-            print("LOGIN GAGAL: ${data['message']}");
-            _showError(data['message'] ?? "Email atau Password Salah");
+            print("LOGIN FAILED: ${data['message']}");
+            _showError(data['message'] ?? "Incorrect Email or Password");
           }
         } else {
           print("SERVER ERROR: ${response.statusCode}");
           _showError("Server Error: ${response.statusCode}");
         }
       } catch (e) {
-        print("--- ERROR TOTAL ---");
-        print("Pesan Error: $e");
-        _showError("Gagal terhubung ke server. Cek IP/Wi-Fi!");
+        print("--- TOTAL ERROR ---");
+        print("Error Message: $e");
+        _showError("Failed to connect to server. Check IP/Wi-Fi!");
       } finally {
         if (mounted) setState(() => _isLoading = false);
       }

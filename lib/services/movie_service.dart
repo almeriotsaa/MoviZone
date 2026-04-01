@@ -158,10 +158,9 @@ class MovieService {
       var data = jsonDecode(response.body);
       var results = data['results'] as List;
 
-      // cari trailer dari YouTube
       for (var video in results) {
         if (video['type'] == 'Trailer' && video['site'] == 'YouTube') {
-          return video['key']; // ini ID YouTube
+          return video['key'];
         }
       }
     }
@@ -169,7 +168,6 @@ class MovieService {
     return null;
   }
 
-  // Di MovieService, tambahkan debug di getMovieCast method
   Future<List<Cast>?> getMovieCast(int movieId) async {
     try {
       final url = Uri.parse('https://api.themoviedb.org/3/movie/$movieId/credits?api_key=$_apiKey');
@@ -182,13 +180,12 @@ class MovieService {
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
 
-        // Cek apakah ada data cast
         if (data.containsKey('cast')) {
           print('Jumlah cast: ${data['cast'].length}');
 
           List<Cast> castList = (data['cast'] as List)
               .map((json) => Cast.fromJson(json))
-              .take(10) // Ambil 10 cast saja
+              .take(10)
               .toList();
 
           print('Cast pertama: ${castList.isNotEmpty ? castList[0].name : 'Tidak ada cast'}');

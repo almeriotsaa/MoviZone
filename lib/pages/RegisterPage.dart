@@ -12,19 +12,20 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage>
     with TickerProviderStateMixin {
-  final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
+  final _formKey                  = GlobalKey<FormState>();
+  final _usernameController       = TextEditingController();
+  final _emailController          = TextEditingController();
+  final _passwordController       = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
   bool _obscurePassword = true;
-  bool _obscureConfirm = true;
-  bool _isLoading = false;
+  bool _obscureConfirm  = true;
+  bool _isLoading       = false;
 
   late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
+  late Animation<double>   _fadeAnimation;
   late AnimationController _slideController;
-  late Animation<Offset> _slideAnimation;
+  late Animation<Offset>   _slideAnimation;
 
   @override
   void initState() {
@@ -52,6 +53,7 @@ class _RegisterPageState extends State<RegisterPage>
 
   @override
   void dispose() {
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
@@ -64,14 +66,15 @@ class _RegisterPageState extends State<RegisterPage>
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
 
-      final url = Uri.parse("http://192.168.1.17/movizone_api/auth/register.php");
+      final url = Uri.parse("http://192.168.1.13/movizone_api/auth/register.php");
 
       try {
         final response = await http.post(
           url,
           headers: {"Content-Type": "application/x-www-form-urlencoded"},
           body: {
-            "email": _emailController.text,
+            "username": _usernameController.text.trim(),
+            "email":    _emailController.text.trim(),
             "password": _passwordController.text,
           },
         ).timeout(const Duration(seconds: 10));
@@ -80,25 +83,17 @@ class _RegisterPageState extends State<RegisterPage>
 
         final data = json.decode(response.body);
 
-        const encoder = JsonEncoder.withIndent('  ');
-        final prettyData = encoder.convert(data);
-        print("API Response:\n$prettyData");
-
         if (data["status"] == "success") {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: const Row(
                 children: [
-                  Icon(Icons.check_circle_outline,
-                      color: Colors.white,
-                      size: 18),
+                  Icon(Icons.check_circle_outline, color: Colors.white, size: 18),
                   SizedBox(width: 8),
                   Text(
                     'Account created successfully!',
                     style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w600,
-                    ),
+                        color: Colors.white, fontWeight: FontWeight.w600),
                   ),
                 ],
               ),
@@ -126,19 +121,15 @@ class _RegisterPageState extends State<RegisterPage>
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                child: Text(prettyData),
-              ),
+              content: Text(data["message"] ?? "Registration failed"),
               backgroundColor: const Color(0xFFE53935),
             ),
           );
         }
       } catch (e) {
         setState(() => _isLoading = false);
-
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Gagal koneksi ke server: $e")),
+          SnackBar(content: Text("Failed to connect to server: $e")),
         );
       }
     }
@@ -150,26 +141,19 @@ class _RegisterPageState extends State<RegisterPage>
       backgroundColor: const Color(0xFF0D0F14),
       body: Stack(
         children: [
-
           Container(
             decoration: const BoxDecoration(
               gradient: RadialGradient(
                 center: Alignment(0, -0.4),
                 radius: 1.0,
-                colors: [
-                  Color(0xFF111827),
-                  Color(0xFF0D0F14),
-                ],
+                colors: [Color(0xFF111827), Color(0xFF0D0F14)],
               ),
             ),
           ),
-
           Positioned(
-            top: -80,
-            left: -80,
+            top: -80, left: -80,
             child: Container(
-              width: 220,
-              height: 220,
+              width: 220, height: 220,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: const Color(0xFF2979FF).withOpacity(0.06),
@@ -177,19 +161,15 @@ class _RegisterPageState extends State<RegisterPage>
             ),
           ),
           Positioned(
-            bottom: -60,
-            right: -60,
+            bottom: -60, right: -60,
             child: Container(
-              width: 200,
-              height: 200,
+              width: 200, height: 200,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-
                 color: const Color(0xFF2979FF).withOpacity(0.05),
               ),
             ),
           ),
-
           SafeArea(
             child: FadeTransition(
               opacity: _fadeAnimation,
@@ -205,8 +185,7 @@ class _RegisterPageState extends State<RegisterPage>
                       Row(
                         children: [
                           Container(
-                            width: 40,
-                            height: 40,
+                            width: 40, height: 40,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
                               color: const Color(0xFF161A22),
@@ -215,11 +194,8 @@ class _RegisterPageState extends State<RegisterPage>
                                 width: 1,
                               ),
                             ),
-                            child: const Icon(
-                              Icons.movie_filter_rounded,
-                              color: Color(0xFF2979FF),
-                              size: 20,
-                            ),
+                            child: const Icon(Icons.movie_filter_rounded,
+                                color: Color(0xFF2979FF), size: 20),
                           ),
                           const SizedBox(width: 10),
                           RichText(
@@ -228,29 +204,26 @@ class _RegisterPageState extends State<RegisterPage>
                                 TextSpan(
                                   text: 'Movi',
                                   style: TextStyle(
-                                    color: Color(0xFFFFFFFF),
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1,
-                                  ),
+                                      color: Color(0xFFFFFFFF),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 1),
                                 ),
                                 TextSpan(
                                   text: 'Z',
                                   style: TextStyle(
-                                    color: Color(0xFF2979FF),
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1,
-                                  ),
+                                      color: Color(0xFF2979FF),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 1),
                                 ),
                                 TextSpan(
                                   text: 'One',
                                   style: TextStyle(
-                                    color: Color(0xFFFFFFFF),
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1,
-                                  ),
+                                      color: Color(0xFFFFFFFF),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 1),
                                 ),
                               ],
                             ),
@@ -263,18 +236,15 @@ class _RegisterPageState extends State<RegisterPage>
                       const Text(
                         'Create New Account 🎬',
                         style: TextStyle(
-                          color: Color(0xFFFFFFFF),
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
+                            color: Color(0xFFFFFFFF),
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 6),
                       const Text(
                         'Sign up now and start exploring movies',
-                        style: TextStyle(
-                          color: Color(0xFF9AA3B8),
-                          fontSize: 14,
-                        ),
+                        style:
+                        TextStyle(color: Color(0xFF9AA3B8), fontSize: 14),
                       ),
 
                       const SizedBox(height: 32),
@@ -283,6 +253,28 @@ class _RegisterPageState extends State<RegisterPage>
                         key: _formKey,
                         child: Column(
                           children: [
+
+                            _buildLabel('Username'),
+                            const SizedBox(height: 8),
+                            TextFormField(
+                              controller: _usernameController,
+                              style: const TextStyle(color: Color(0xFFFFFFFF)),
+                              decoration: _inputDecoration(
+                                hint: 'Your display name',
+                                icon: Icons.person_outline,
+                              ),
+                              validator: (value) {
+                                if (value == null || value.trim().isEmpty) {
+                                  return 'Username cannot be empty';
+                                }
+                                if (value.trim().length < 3) {
+                                  return 'Username must be at least 3 characters';
+                                }
+                                return null;
+                              },
+                            ),
+
+                            const SizedBox(height: 20),
 
                             _buildLabel('Email'),
                             const SizedBox(height: 8),
@@ -298,8 +290,7 @@ class _RegisterPageState extends State<RegisterPage>
                                 if (value == null || value.trim().isEmpty) {
                                   return 'Email cannot be empty';
                                 }
-                                if (!RegExp(
-                                    r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
+                                if (!RegExp(r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$')
                                     .hasMatch(value.trim())) {
                                   return 'Invalid email format';
                                 }
@@ -387,41 +378,36 @@ class _RegisterPageState extends State<RegisterPage>
                                   disabledBackgroundColor:
                                   const Color(0xFF2979FF).withOpacity(0.4),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(14),
-                                  ),
+                                      borderRadius: BorderRadius.circular(14)),
                                   elevation: 0,
                                 ),
                                 child: _isLoading
                                     ? const SizedBox(
-                                  width: 22,
-                                  height: 22,
+                                  width: 22, height: 22,
                                   child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2.5,
-                                  ),
+                                      color: Colors.white,
+                                      strokeWidth: 2.5),
                                 )
                                     : const Text(
                                   'Create Account',
                                   style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 0.5,
-                                  ),
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: 0.5),
                                 ),
                               ),
                             ),
 
                             const SizedBox(height: 24),
+
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 const Text(
                                   "Already have an account? ",
                                   style: TextStyle(
-                                    color: Color(0xFF9AA3B8),
-                                    fontSize: 14,
-                                  ),
+                                      color: Color(0xFF9AA3B8), fontSize: 14),
                                 ),
                                 GestureDetector(
                                   onTap: () {
@@ -446,10 +432,9 @@ class _RegisterPageState extends State<RegisterPage>
                                   child: const Text(
                                     'Login',
                                     style: TextStyle(
-                                      color: Color(0xFF2979FF),
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                        color: Color(0xFF2979FF),
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold),
                                   ),
                                 ),
                               ],
@@ -475,11 +460,10 @@ class _RegisterPageState extends State<RegisterPage>
       child: Text(
         text,
         style: const TextStyle(
-          color: Color(0xFF9AA3B8),
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
-        ),
+            color: Color(0xFF9AA3B8),
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.5),
       ),
     );
   }
@@ -499,22 +483,15 @@ class _RegisterPageState extends State<RegisterPage>
       contentPadding:
       const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: BorderSide.none,
-      ),
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
-          color: Color(0xFF252B38),
-          width: 1,
-        ),
+        borderSide: const BorderSide(color: Color(0xFF252B38), width: 1),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(
-          color: Color(0xFF2979FF),
-          width: 1.5,
-        ),
+        borderSide: const BorderSide(color: Color(0xFF2979FF), width: 1.5),
       ),
       errorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),

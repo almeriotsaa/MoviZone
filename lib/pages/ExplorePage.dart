@@ -383,7 +383,6 @@ class _ExplorePageState extends State<ExplorePage> {
         Navigator.push(context, MaterialPageRoute(
           builder: (context) => DetailPage(
             movieId: movie.id,
-            // LANGKAH 2: Kirim userId ke DetailPage
             userId: widget.userId,
           ),
         ));
@@ -419,7 +418,6 @@ class _ExplorePageState extends State<ExplorePage> {
                         );
                       },
                     ),
-                    // Rating Badge
                     Positioned(
                       top: 8,
                       right: 8,
@@ -457,7 +455,6 @@ class _ExplorePageState extends State<ExplorePage> {
                 ),
               ),
             ),
-            // Movie Info
             Expanded(
               flex: 1,
               child: Padding(

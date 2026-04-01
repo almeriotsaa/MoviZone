@@ -38,7 +38,7 @@ class WatchlistPageState extends State<WatchlistPage> with RouteAware {
 
   @override
   void didPopNext() {
-    debugPrint("Kembali ke Watchlist, merefresh data secara otomatis...");
+    debugPrint("Returned to Watchlist, refreshing data automatically...");
     fetchWatchlist();
   }
 
@@ -48,7 +48,7 @@ class WatchlistPageState extends State<WatchlistPage> with RouteAware {
 
     try {
       final response = await http.get(
-          Uri.parse("http://192.168.1.14/MOVIZONE_API/favorites/get_favorites.php?user_id=${widget.userId}")
+          Uri.parse("http://192.168.1.13/MOVIZONE_API/favorites/get_favorites.php?user_id=${widget.userId}")
       ).timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
@@ -77,14 +77,14 @@ class WatchlistPageState extends State<WatchlistPage> with RouteAware {
   Future<void> _deleteFromDatabase(int movieId) async {
     try {
       await http.post(
-        Uri.parse("http://192.168.1.14/MOVIZONE_API/favorites/delete_favorite.php"),
+        Uri.parse("http://192.168.1.13/MOVIZONE_API/favorites/delete_favorite.php"),
         body: {
           "user_id": widget.userId,
           "movie_id": movieId.toString(),
         },
       );
     } catch (e) {
-      debugPrint("Gagal hapus di server: $e");
+      debugPrint("Failed to delete on server: $e");
     }
   }
 
@@ -117,7 +117,7 @@ class WatchlistPageState extends State<WatchlistPage> with RouteAware {
             SizedBox(height: MediaQuery.of(context).size.height * 0.3),
             const Center(
               child: Text(
-                "Belum ada film favorit nih.",
+                "No favorite movies yet.",
                 style: TextStyle(color: Colors.white54),
               ),
             ),
@@ -151,7 +151,7 @@ class WatchlistPageState extends State<WatchlistPage> with RouteAware {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.delete_sweep, color: Colors.white, size: 30),
-            Text("Hapus", style: TextStyle(color: Colors.white, fontSize: 12))
+            Text("Remove", style: TextStyle(color: Colors.white, fontSize: 12))
           ],
         ),
       ),
@@ -162,7 +162,7 @@ class WatchlistPageState extends State<WatchlistPage> with RouteAware {
           favoriteMovies.removeAt(index);
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("$title dihapus dari Watchlist")),
+          SnackBar(content: Text("$title removed from Watchlist")),
         );
       },
       child: Card(

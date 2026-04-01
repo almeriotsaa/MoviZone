@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:movie_app/models/genre.dart';
 import 'package:movie_app/pages/DetailPage.dart';
 import 'package:movie_app/pages/MovieSwiper.dart';
@@ -22,33 +24,58 @@ class _HomePageState extends State<HomePage> {
   List<Genre>? _genres;
 
   bool _isLoading = true;
-  String selectedGenre = 'All';
-  int? selectedGenreId;
+  String selectedGenre   = 'All';
+  int?   selectedGenreId;
+
+  String  _username        = '';
+  String? _profileImageUrl;
+
+  static const String _baseUrl = 'http://192.168.1.13/MOVIZONE_API';
 
   @override
   void initState() {
     super.initState();
+    _fetchUserProfile();
     _loadAllData();
   }
 
-  Future<void> _loadAllData() async {
-    setState(() {
-      _isLoading = true;
-    });
+  Future<void> _fetchUserProfile() async {
+    if (widget.userId.isEmpty) return;
+    try {
+      final res = await http
+          .get(Uri.parse(
+          '$_baseUrl/users/get_profile.php?user_id=${widget.userId}'))
+          .timeout(const Duration(seconds: 10));
 
-    // Load all data in parallel
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
+        if (data['status'] == 'success' && mounted) {
+          setState(() {
+            _username        = data['username']      ?? '';
+            _profileImageUrl = data['profile_image'];
+          });
+        }
+      }
+    } catch (e) {
+      debugPrint('Fetch user profile error: $e');
+    }
+  }
+
+  Future<void> _loadAllData() async {
+    setState(() => _isLoading = true);
+
     await Future.wait([
       api.getTrendingMovies().then((value) => _trendingMovies = value),
-      api.getPopularMovies().then((value) => _popularMovies = value),
-      api.getTopRatedMovies().then((value) => _topMovies = value),
+      api.getPopularMovies().then((value)  => _popularMovies  = value),
+      api.getTopRatedMovies().then((value) => _topMovies      = value),
       api.getUpcomingMovies().then((value) => _upcomingMovies = value),
-      api.getGenres().then((value) => _genres = value),
+      api.getGenres().then((value)         => _genres         = value),
     ]);
 
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() => _isLoading = false);
   }
+
+  String get _displayName => _username.isNotEmpty ? _username : 'User';
 
   @override
   Widget build(BuildContext context) {
@@ -57,17 +84,39 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        automaticallyImplyLeading: false,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Welcome,', style: TextStyle(color: Colors.white, fontSize: 14),),
-            const Text('Frank Ocean', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
+            const Text(
+              'Welcome,',
+              style: TextStyle(color: Colors.white, fontSize: 14),
+            ),
+            Text(
+              _displayName,
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
+            ),
           ],
         ),
         actions: [
-          const CircleAvatar(
-            backgroundImage: NetworkImage(
-                'https://upload.wikimedia.org/wikipedia/commons/e/e3/Frank_Ocean_2022_Blonded.jpg'),
+          CircleAvatar(
+            radius: 20,
+            backgroundColor: const Color(0xff1E1E2C),
+            backgroundImage: _profileImageUrl != null
+                ? NetworkImage(_profileImageUrl!)
+                : null,
+            child: _profileImageUrl == null
+                ? Text(
+              _displayName[0].toUpperCase(),
+              style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16),
+            )
+                : null,
           ),
           const SizedBox(width: 16),
         ],
@@ -80,7 +129,6 @@ class _HomePageState extends State<HomePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Movie Swiper Section
               if (_trendingMovies != null && _trendingMovies!.isNotEmpty)
                 MovieSwiper(
                   movies: _trendingMovies!,
@@ -89,21 +137,22 @@ class _HomePageState extends State<HomePage> {
 
               const SizedBox(height: 20),
 
-              // Categories Section
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: const [
-                  Text('Categories', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),),
-                  Text('See all', style: TextStyle(color: Colors.white, fontSize: 14),),
+                  Text('Categories',
+                      style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold)),
+                  Text('See all',
+                      style: TextStyle(
+                          color: Colors.white, fontSize: 14)),
                 ],
               ),
               const SizedBox(height: 12),
-              SizedBox(
-                height: 40,
-                child: _buildCategoryList(),
-              ),
+              SizedBox(height: 40, child: _buildCategoryList()),
 
-              // Movie Sections
               _buildSectionTitle('Trending Movies'),
               _buildMovieRow(_trendingMovies),
 
@@ -115,6 +164,7 @@ class _HomePageState extends State<HomePage> {
 
               _buildSectionTitle('Upcoming Movies'),
               _buildMovieRow(_upcomingMovies),
+
               const SizedBox(height: 30),
             ],
           ),
@@ -126,8 +176,10 @@ class _HomePageState extends State<HomePage> {
   Widget _buildCategoryList() {
     if (_genres == null) return const SizedBox();
 
-    final genres = _genres!;
-    final allGenres = [{'id': null, 'name': 'All'}, ...genres.map((g) => {'id': g.id, 'name': g.name})];
+    final allGenres = [
+      {'id': null, 'name': 'All'},
+      ..._genres!.map((g) => {'id': g.id, 'name': g.name}),
+    ];
 
     return ListView.builder(
       scrollDirection: Axis.horizontal,
@@ -135,13 +187,12 @@ class _HomePageState extends State<HomePage> {
       itemBuilder: (context, index) {
         final genre = allGenres[index];
         return GestureDetector(
-          onTap: () {
-            setState(() {
-              selectedGenre = genre['name'] as String;
-              selectedGenreId = genre['id'] as int?;
-            });
-          },
-          child: _categoryItem(genre['name'] as String, isSelected: selectedGenre == genre['name']),
+          onTap: () => setState(() {
+            selectedGenre   = genre['name'] as String;
+            selectedGenreId = genre['id']   as int?;
+          }),
+          child: _categoryItem(genre['name'] as String,
+              isSelected: selectedGenre == genre['name']),
         );
       },
     );
@@ -150,7 +201,11 @@ class _HomePageState extends State<HomePage> {
   Widget _buildSectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(top: 20, bottom: 10),
-      child: Text(title, style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+      child: Text(title,
+          style: const TextStyle(
+              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.bold)),
     );
   }
 
@@ -158,18 +213,22 @@ class _HomePageState extends State<HomePage> {
     if (movies == null || movies.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
-        child: Center(child: Text("No Movies", style: TextStyle(color: Colors.white))),
+        child: Center(
+            child:
+            Text('No Movies', style: TextStyle(color: Colors.white))),
       );
     }
 
-    final filteredMovies = selectedGenreId == null
+    final filtered = selectedGenreId == null
         ? movies
         : movies.where((m) => m.genreIds.contains(selectedGenreId)).toList();
 
-    if (filteredMovies.isEmpty) {
+    if (filtered.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 20),
-        child: Center(child: Text("No movies in this category", style: TextStyle(color: Colors.white70))),
+        child: Center(
+            child: Text('No movies in this category',
+                style: TextStyle(color: Colors.white70))),
       );
     }
 
@@ -177,25 +236,22 @@ class _HomePageState extends State<HomePage> {
       height: 260,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: filteredMovies.length,
-        itemBuilder: (context, index) => _buildMovieCard(context, filteredMovies[index], widget.userId),
+        itemCount: filtered.length,
+        itemBuilder: (context, index) =>
+            _buildMovieCard(context, filtered[index], widget.userId),
       ),
     );
   }
 
   Widget _buildMovieCard(BuildContext context, Movie movie, String userId) {
     return GestureDetector(
-      onTap: () {
-        Navigator.push(
-            context,
-            MaterialPageRoute(
-                builder: (context) => DetailPage(
-                  movieId: movie.id,
-                  userId: widget.userId,
-                )
-            )
-        );
-      },
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) =>
+              DetailPage(movieId: movie.id, userId: widget.userId),
+        ),
+      ),
       child: Container(
         width: 150,
         margin: const EdgeInsets.only(right: 12),
@@ -207,22 +263,26 @@ class _HomePageState extends State<HomePage> {
               child: Image.network(
                 'https://image.tmdb.org/t/p/w500${movie.posterPath}',
                 height: 180, width: 150, fit: BoxFit.cover,
-                errorBuilder: (context, e, s) => Container(
-                  height: 180,
-                  width: 150,
+                errorBuilder: (_, __, ___) => Container(
+                  height: 180, width: 150,
                   color: Colors.grey[900],
                   child: const Icon(Icons.error, color: Colors.white54),
                 ),
               ),
             ),
             const SizedBox(height: 8),
-            Text(movie.title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            Text(movie.title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                    color: Colors.white, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Row(
               children: [
                 const Icon(Icons.star, color: Colors.amber, size: 16),
                 const SizedBox(width: 4),
-                Text(movie.voteAverage.toStringAsFixed(1), style: const TextStyle(color: Colors.white70)),
+                Text(movie.voteAverage.toStringAsFixed(1),
+                    style: const TextStyle(color: Colors.white70)),
               ],
             ),
           ],
@@ -237,11 +297,16 @@ Widget _categoryItem(String title, {bool isSelected = false}) {
     padding: const EdgeInsets.symmetric(horizontal: 20),
     margin: const EdgeInsets.only(right: 12),
     decoration: BoxDecoration(
-      color: isSelected ? const Color(0xFF2979FF) : const Color(0xff1E1E2C),
+      color: isSelected
+          ? const Color(0xFF2979FF)
+          : const Color(0xff1E1E2C),
       borderRadius: BorderRadius.circular(30),
     ),
     child: Center(
-      child: Text(title, style: TextStyle(color: isSelected ? Colors.white : Colors.white70, fontWeight: FontWeight.w500)),
+      child: Text(title,
+          style: TextStyle(
+              color: isSelected ? Colors.white : Colors.white70,
+              fontWeight: FontWeight.w500)),
     ),
   );
 }
