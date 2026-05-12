@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class DatabaseService {
-  final String baseUrl = "http://192.168.1.7/MOVIZONE_API";
+  final String baseUrl = "http://192.168.100.115/MOVIZONE_API";
 
   Future<Map<String, dynamic>> login({
     required String email,
